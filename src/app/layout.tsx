@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import "./globals.css";
 
 const roboto = Roboto({
@@ -19,14 +17,13 @@ export const metadata: Metadata = {
     "1st City LLC manages quality market-rate and subsidized housing throughout the city.",
 };
 
+// Public pages get the marketing Header/Footer via (site)/layout.tsx;
+// /admin has its own chrome (see admin/(protected)/layout.tsx) since it's
+// an internal tool, not part of the public site.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en" className={`${roboto.variable} h-full`}>
-      <body className="flex min-h-full flex-col font-sans antialiased">
-        <Header />
-        <main className="flex flex-1 flex-col">{children}</main>
-        <Footer />
-      </body>
+      <body className="flex min-h-full flex-col font-sans antialiased">{children}</body>
     </html>
   );
 }

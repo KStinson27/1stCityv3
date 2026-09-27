@@ -11,6 +11,14 @@ export const vendorSubmissionSchema = z.object({
 
 export type VendorSubmissionFormValues = z.infer<typeof vendorSubmissionSchema>;
 
+// What the API route accepts: the form fields above, plus the optional
+// attachment metadata the client attaches after uploading the file
+// (see src/app/api/uploads/route.ts).
+export const vendorSubmissionApiSchema = vendorSubmissionSchema.extend({
+  attachmentUrl: z.string().trim().optional(),
+  attachmentName: z.string().trim().optional(),
+});
+
 export const propertyContactSchema = z.object({
   name: z.string().trim().min(1, "Your name is required"),
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),

@@ -1,14 +1,14 @@
 import { NextResponse } from "next/server";
-import { vendorSubmissionSchema } from "@/lib/validation";
+import { vendorSubmissionApiSchema } from "@/lib/validation";
+import { prisma } from "@/lib/prisma";
 
 /**
- * Phase 1 (see PLAN.md): no database yet, so a submission is validated
- * and emailed to staff rather than persisted. Phase 2 adds Prisma/Neon
- * and writes a VendorSubmission row here instead (or in addition).
+ * Phase 2 (see PLAN.md): submissions are now persisted so they show up
+ * in /admin, in addition to the Phase 1 email notification.
  */
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
-  const parsed = vendorSubmissionSchema.safeParse(body);
+  const parsed = vendorSubmissionApiSchema.safeParse(body);
 
   if (!parsed.success) {
     return NextResponse.json(
@@ -18,6 +18,20 @@ export async function POST(request: Request) {
   }
 
   const submission = parsed.data;
+
+  await prisma.vendorSubmission.create({
+    data: {
+      companyName: submission.companyName,
+      contactName: submission.contactName,
+      email: submission.email,
+      phone: submission.phone || null,
+      serviceType: submission.serviceType,
+      message: submission.message,
+      attachmentUrl: submission.attachmentUrl || null,
+      attachmentName: submission.attachmentName || null,
+    },
+  });
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const notifyEmail = process.env.VENDOR_NOTIFICATION_EMAIL ?? "vendors@1stcityllc.example";
 
@@ -41,19 +55,18 @@ export async function POST(request: Request) {
             `Service type: ${submission.serviceType}`,
             "",
             submission.message,
+            "",
+            "View and manage this submission in /admin.",
           ].join("\n"),
         }),
       });
     } catch (error) {
       console.error("Failed to send vendor notification email:", error);
       // Don't fail the request over an email delivery issue — the
-      // submission itself is still valid and acknowledged below.
+      // submission is already saved and visible in /admin.
     }
   } else {
-    console.info(
-      "RESEND_API_KEY not set — vendor submission logged instead of emailed:",
-      submission
-    );
+    console.info("RESEND_API_KEY not set — no email sent; submission saved to /admin.");
   }
 
   return NextResponse.json({ ok: true });

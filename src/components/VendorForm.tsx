@@ -25,6 +25,42 @@ export function VendorForm() {
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
+  const [fileError, setFileError] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const [attachment, setAttachment] = useState<{ url: string; name: string } | null>(null);
+
+  async function handleFileSelect(file: File | undefined) {
+    if (!file) return;
+    setFileError(null);
+    setFileName(file.name);
+    setUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+      const res = await fetch("/api/uploads", { method: "POST", body: formData });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error ?? "Upload failed");
+      }
+      if (data.url) {
+        setAttachment({ url: data.url, name: data.name });
+      }
+      // If storage isn't configured (`data.skipped`), we keep the
+      // filename shown but don't have a URL to submit — same
+      // filename-only fallback as before file storage existed.
+    } catch {
+      setFileError("Couldn't upload that file. You can still submit without it.");
+      setFileName(null);
+    } finally {
+      setUploading(false);
+    }
+  }
+
+  function removeFile() {
+    setFileName(null);
+    setAttachment(null);
+    setFileError(null);
+  }
 
   async function onSubmit(values: VendorSubmissionFormValues) {
     setSubmitError(null);
@@ -32,11 +68,16 @@ export function VendorForm() {
       const res = await fetch("/api/vendor-submissions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({
+          ...values,
+          attachmentUrl: attachment?.url,
+          attachmentName: attachment?.name,
+        }),
       });
       if (!res.ok) throw new Error("Submission failed");
       reset();
       setFileName(null);
+      setAttachment(null);
     } catch {
       setSubmitError("Something went wrong sending your proposal. Please try again.");
     }
@@ -122,12 +163,12 @@ export function VendorForm() {
               <polyline points="14 2 14 8 20 8" />
             </svg>
             <span className="flex-1 truncate text-sm font-medium text-primary-dark">
-              {fileName}
+              {uploading ? `Uploading ${fileName}…` : fileName}
             </span>
             <button
               type="button"
               aria-label="Remove file"
-              onClick={() => setFileName(null)}
+              onClick={removeFile}
               className="text-primary-dark"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -149,10 +190,11 @@ export function VendorForm() {
               type="file"
               accept="application/pdf"
               className="sr-only"
-              onChange={(e) => setFileName(e.target.files?.[0]?.name ?? null)}
+              onChange={(e) => handleFileSelect(e.target.files?.[0])}
             />
           </label>
         )}
+        {fileError && <span className={errorClass}>{fileError}</span>}
       </div>
 
       <div className="flex flex-wrap items-center gap-4 pt-1">

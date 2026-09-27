@@ -1,4 +1,4 @@
-# 1st City Rentals — Website Plan
+# 1st City LLC — Website Plan
 
 Architecture and delivery plan for a property listing site (including subsidized/affordable housing units) with per-property pages and a vendor proposal intake form.
 
@@ -13,7 +13,9 @@ _Last updated: 2026-09-27_
 | Vendor submissions | Form + internal tracking | Submissions must be stored (not just emailed) and viewable/updatable (status: new/reviewed/contacted) in a simple protected admin view. Requires a database and basic auth. |
 | Hosting/budget | Some budget is fine (~$25–100/mo) | We can use paid tiers where they meaningfully reduce maintenance (e.g. Vercel Pro, a small managed Postgres), without needing to force everything onto free tiers. |
 
-**Still open — please confirm before/while we build (see §7):** branding assets, domain name, and the subsidized-housing program details (income limits, waitlist process, required Fair Housing/Equal Housing Opportunity disclosures).
+**Still open — please confirm before/while we build (see §7):** domain name, the real income-limit figures and required-document checklist per subsidized property, who receives reasonable-accommodation requests, and which RealPage/OneSite module handles online applications (see §5a).
+
+**Resolved via the mockup:** branding — green (`#2E7D32` family) + a simple "1C" monogram logo, MUI-style component look built with hand-rolled Tailwind-equivalent markup (see §2 note).
 
 ## 2. Recommended tech stack
 
@@ -37,14 +39,22 @@ Chosen for: small team maintaining it, developer-managed content, a real (if sma
 
 **Why not a headless CMS (Sanity/Payload/Contentful)?** With ≤15 properties edited by a developer, a CMS subscription and its extra moving part isn't buying you much. Property data lives as typed content (Markdown+frontmatter or straight DB rows managed via Prisma Studio) in the same repo, versioned in Git. If content ownership later shifts to non-technical staff, this is the piece to swap — everything else (routing, styling, vendor DB) stays the same.
 
+**On the "MUI + Tailwind, green" look from the mockup:** the mockup recreates Material Design's visual language (AppBar, elevated cards, filled buttons, Chips) by hand in Tailwind-equivalent markup — it does **not** require adding `@mui/material` as a real dependency. Tailwind alone can reproduce this look (shadows, radii, and the green palette are just utility classes/tokens). Only add the actual MUI library if you specifically want its React components (form validation states, date pickers, etc.) rather than just the look — that's a bigger dependency and a different theming system than Tailwind, so it's worth deciding deliberately rather than defaulting into it.
+
 ## 3. Site map
 
 ```
 /                          Home — mission, featured properties, subsidized-housing callout, CTA
 /properties                All properties, filterable by city/type/subsidized-or-not
-/properties/[slug]         One property: photos, amenities, unit types, subsidized program details, contact
+/properties/[slug]         One property: photos, amenities, unit types, eligibility/income limits,
+                            required documents, "Apply Online" (→ RealPage/OneSite), subsidized
+                            program details, contact
 /vendors                   Vendor info + proposal/request submission form
+/about                     Company bio (owner, director), fair housing & reasonable accommodation
+                            statement, portfolio summary
 /contact                   General company contact (optional, may fold into footer)
+/privacy                   Privacy Policy (content pending attorney review — see §7)
+/terms                     Terms of Use (content pending attorney review — see §7)
 /admin                     (auth-gated) Vendor submission queue: list, status, notes
 /admin/login               Staff sign-in
 ```
@@ -62,7 +72,10 @@ model Property {
   zip          String
   description  String
   isSubsidized Boolean  @default(false)
-  subsidyNotes String?  // e.g. Section 8 accepted, income limits, waitlist status
+  subsidyNotes String?  // e.g. Section 8 accepted, waitlist status
+  incomeLimits Json?    // household size -> max annual income, from HUD's annual AMI chart
+  requiredDocs String[] // document checklist for a subsidized application at this property
+  applyUrl     String?  // deep link to this property's RealPage/OneSite applicant portal
   contactName  String
   contactEmail String
   contactPhone String
@@ -127,7 +140,19 @@ enum Status {
 4. Staff log into `/admin`, see submissions newest-first, filter by status, and update status/notes as they follow up.
 5. No public-facing status tracking for vendors in this phase (that's the "full portal" option you didn't pick) — if that changes later, it's an additive feature, not a rearchitecture.
 
-## 6. Hosting cost estimate (monthly, USD)
+## 6. Digital application strategy (RealPage/OneSite)
+
+Applications for subsidized units currently go through paper forms submitted to the office; waitlist and leasing already run on RealPage/OneSite. Recommendation: **don't build a custom application/eligibility engine on the new site.** Subsidized-housing applications carry HUD/LIHTC-specific logic — income limits by household size and program, per-property document checklists, audit trails for compliance reporting — that RealPage's affordable-housing modules already handle. Reimplementing that logic in the new Next.js app would mean owning compliance risk (audit findings, LIHTC recapture) that RealPage is already built and certified for.
+
+In order of preference:
+
+1. **Deep-link to RealPage's own applicant portal (recommended)** — each `Property.applyUrl` points straight to that property's RealPage-hosted application. Confirm with your RealPage rep which current product covers this (an online leasing/applicant-portal add-on — the exact name shifts, so verify rather than assume) and whether it's already licensed. Lowest engineering cost, lowest compliance risk, and this is reflected in the mockup as the "Apply Online" button on each property page.
+2. **Embed the RealPage portal in an iframe** on the property page instead of linking out, if RealPage allows iframe embedding for your account — same ownership of compliance logic, just keeps the visitor on-domain.
+3. **Custom application built on the new site, pushed into RealPage via API** — only worth it for a fully custom-branded flow. Requires RealPage Exchange/API access (may need a paid integration entitlement) and you'd still need to mirror their eligibility rules. Not the starting point.
+
+Keep paper applications available during the transition — some applicants won't have reliable internet access — and phase the digital option in property by property.
+
+## 7. Hosting cost estimate (monthly, USD)
 
 Given "some budget is fine," this targets reliability over squeezing to $0 — but nothing here is aggressively overbought for a ~1–15 property site.
 
@@ -143,21 +168,23 @@ Given "some budget is fine," this targets reliability over squeezing to $0 — b
 
 This comfortably fits inside "some budget is fine." If traffic or the portfolio grows a lot, the main line items that scale are Vercel bandwidth/function usage and Neon compute — both usage-based, so cost grows with actual load rather than a step-function upgrade.
 
-## 7. Open questions before/while building
+## 8. Open questions before/while building
 
-1. **Branding** — do you have an existing logo/color palette to use, or should the mockup use a neutral placeholder look for now?
-2. **Domain name** — do you already own one, or does that need to be registered as part of this project?
-3. **Subsidized housing compliance** — what needs to appear on each listing (income limits, waitlist status, required Equal Housing Opportunity logo/statement, Fair Housing Act disclosures)? This affects the property data model and page copy, and may have legal requirements beyond typical web content.
-4. **Accessibility target** — should we explicitly target WCAG 2.2 AA (recommended for housing-related sites, and reduces legal risk under the Fair Housing Act/ADA)?
-5. **Admin users** — roughly how many staff need `/admin` access to view vendor submissions, and do you want role differences (e.g. view-only vs. can-edit-status)?
+1. **Domain name** — do you already own one, or does that need to be registered as part of this project?
+2. **Real eligibility data per subsidized property** — actual income limits by household size (Devin Apartments, Lanier Court Apartments, West Chicago Apartments, Orchestra Tower) and the exact required-document checklist for each. The mockup shows the layout with bracketed placeholders.
+3. **RealPage/OneSite application module** — which current RealPage product provides the applicant-facing online portal, whether it's already licensed, and whether it supports per-property deep links or iframe embedding (see §6).
+4. **Reasonable accommodation contact** — who receives accommodation/modification requests (property office, a central compliance contact, or both)?
+5. **Legal page content** — Privacy Policy and Terms of Use need to be drafted or reviewed by your attorney before launch; the mockup only shows placeholder links for these, not drafted text, since that's not something to generate without legal review (state law — e.g. CCPA-style requirements — and your actual data practices need to be reflected accurately).
+6. **Accessibility target** — should we explicitly target WCAG 2.2 AA (recommended for housing-related sites, and reduces legal risk under the Fair Housing Act/ADA)?
+7. **Admin users** — roughly how many staff need `/admin` access to view vendor submissions, and do you want role differences (e.g. view-only vs. can-edit-status)?
 
-## 8. Suggested phases
+## 9. Suggested phases
 
 1. **Phase 1 — Scaffold**: Next.js + Tailwind project, static property pages from seed data, vendor form (email-only, no DB yet). Deployed to Vercel.
 2. **Phase 2 — Persistence**: Add Neon + Prisma, move vendor submissions to the database, build `/admin` with Better Auth.
-3. **Phase 3 — Polish**: Real property photos via Vercel Blob, accessibility pass, Fair Housing/EHO compliance copy, SEO basics (sitemap, meta tags).
+3. **Phase 3 — Polish**: Real property photos via Vercel Blob, accessibility pass, Fair Housing/EHO compliance copy and reasonable-accommodation statement, per-property "Apply Online" links into RealPage (§6), SEO basics (sitemap, meta tags). Legal counsel drafts Privacy Policy/Terms content for `/privacy` and `/terms`.
 4. **Phase 4 — Launch**: Custom domain, monitoring, Dependabot/Renovate turned on for ongoing dependency hygiene.
 
-## 9. Mockup
+## 10. Mockup
 
-A clickable HTML mockup (home, property listing, property detail, vendor proposal form) has been published separately — see the link shared alongside this plan.
+A clickable HTML mockup has been published separately — see the link shared alongside this plan. It now covers: Home, Properties (all 9, correctly badged subsidized/market-rate), Property Detail (with an eligibility/income-limits/required-documents section and an "Apply Online" flow into RealPage), Vendors, and About (leadership bios, fair housing & reasonable-accommodation statement), each with both a desktop and a mobile layout.

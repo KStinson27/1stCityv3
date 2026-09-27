@@ -10,19 +10,15 @@ type LogoProps = {
 const LOGO_ASPECT_RATIO = 586 / 403;
 
 /**
- * The real "1st City LLC" logo (green "1" + black "ST/CITY/LLC"), on a
- * white plate so its colors stay legible on any background — the source
- * file has black text meant for a white background, so it can't sit
- * directly on the green navbar/footer without one. Used where the full
- * lockup (not just the small mark) is wanted, e.g. the site header.
+ * The real "1st City LLC" logo (green "1" + black "ST/CITY/LLC"), rendered
+ * with its transparent background as-is. Its black text only reads on a
+ * light backdrop, so anywhere this is used needs a light surface behind it
+ * (see Header, which is white for this reason) rather than sitting on a
+ * colored bar directly.
  */
 export function Wordmark({ height = 40 }: { height?: number }) {
   const width = Math.round(height * LOGO_ASPECT_RATIO);
-  return (
-    <div className="flex items-center rounded-lg bg-white px-3 py-2">
-      <Image src="/logo.png" alt="1st City LLC" width={width} height={height} priority />
-    </div>
-  );
+  return <Image src="/logo.png" alt="1st City LLC" width={width} height={height} priority />;
 }
 
 /**

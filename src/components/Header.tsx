@@ -14,7 +14,7 @@ export function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-20 bg-primary shadow-appbar">
+    <header className="sticky top-0 z-20 border-b border-border bg-surface shadow-appbar">
       <div className="flex h-[72px] items-center justify-between px-4 md:px-16">
         <Link href="/" className="flex items-center" onClick={() => setMenuOpen(false)}>
           <Wordmark />
@@ -25,14 +25,14 @@ export function Header() {
             <Link
               key={link.href}
               href={link.href}
-              className="rounded px-4 py-2 text-sm font-medium uppercase tracking-wide text-white hover:bg-white/10"
+              className="rounded px-4 py-2 text-sm font-medium uppercase tracking-wide text-text hover:bg-primary-bg hover:text-primary-dark"
             >
               {link.label}
             </Link>
           ))}
           <a
             href="tel:+15551234567"
-            className="ml-3 flex items-center gap-2 rounded bg-white px-[18px] py-2 text-[13px] font-medium tracking-wide text-primary-dark shadow-button"
+            className="ml-3 flex items-center gap-2 rounded bg-primary px-[18px] py-2 text-[13px] font-medium tracking-wide text-white shadow-button"
           >
             (555) 123-4567
           </a>
@@ -43,7 +43,7 @@ export function Header() {
           aria-label={menuOpen ? "Close menu" : "Open menu"}
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((open) => !open)}
-          className="flex items-center justify-center rounded p-1 text-white md:hidden"
+          className="flex items-center justify-center rounded p-1 text-text md:hidden"
         >
           {menuOpen ? (
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
@@ -61,20 +61,20 @@ export function Header() {
       </div>
 
       {menuOpen && (
-        <nav className="flex flex-col gap-1 border-t border-white/10 px-4 py-3 md:hidden">
+        <nav className="flex flex-col gap-1 border-t border-border px-4 py-3 md:hidden">
           {NAV_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
               onClick={() => setMenuOpen(false)}
-              className="rounded px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+              className="rounded px-3 py-2 text-sm font-medium text-text hover:bg-primary-bg hover:text-primary-dark"
             >
               {link.label}
             </Link>
           ))}
           <a
             href="tel:+15551234567"
-            className="mt-1 rounded bg-white px-3 py-2 text-center text-sm font-medium text-primary-dark"
+            className="mt-1 rounded bg-primary px-3 py-2 text-center text-sm font-medium text-white"
           >
             (555) 123-4567
           </a>

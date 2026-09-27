@@ -180,7 +180,7 @@ This comfortably fits inside "some budget is fine." If traffic or the portfolio 
 
 ## 9. Suggested phases
 
-1. **Phase 1 — Scaffold**: Next.js + Tailwind project, static property pages from seed data, vendor form (email-only, no DB yet). Deployed to Vercel.
+1. **Phase 1 — Scaffold ✅ done** (`c49fa55`): Next.js 16 + React 19 + TypeScript + Tailwind CSS 4 app, styled to match the approved mockup. Home, Properties (search + filter), Property Detail (eligibility section, Apply Online, contact form), Vendors, About, and a custom 404 all live. Vendor and property-contact forms validate with Zod and email via Resend when configured, otherwise log to the console — no database yet. Property data is seed data in `src/data/properties.ts` with real names/subsidized flags but placeholder facts pending §8. Not yet deployed to Vercel (needs your Vercel account — see README).
 2. **Phase 2 — Persistence**: Add Neon + Prisma, move vendor submissions to the database, build `/admin` with Better Auth.
 3. **Phase 3 — Polish**: Real property photos via Vercel Blob, accessibility pass, Fair Housing/EHO compliance copy and reasonable-accommodation statement, per-property "Apply Online" links into RealPage (§6), SEO basics (sitemap, meta tags). Legal counsel drafts Privacy Policy/Terms content for `/privacy` and `/terms`.
 4. **Phase 4 — Launch**: Custom domain, monitoring, Dependabot/Renovate turned on for ongoing dependency hygiene.

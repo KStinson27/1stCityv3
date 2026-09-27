@@ -3,18 +3,27 @@ type LogoProps = {
   textColor?: string;
 };
 
+/**
+ * The green flag-"1" from the real 1st City LLC wordmark, redrawn as SVG
+ * from the logo file provided directly (not yet committed as an asset —
+ * see LogoMark below). Swap this path for the original vector if a source
+ * SVG/AI file becomes available later.
+ */
+function FlagOne({ size }: { size: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 140" fill="none" aria-hidden="true">
+      <path d="M45 20 L70 20 L70 130 L45 130 L45 48 L20 48 Z" fill="#2e7d32" />
+    </svg>
+  );
+}
+
 export function LogoMark({ size = 36 }: { size?: number }) {
   return (
     <div
       className="flex shrink-0 items-center justify-center rounded-lg bg-white"
       style={{ width: size, height: size }}
     >
-      <span
-        className="font-bold text-primary"
-        style={{ fontSize: size * 0.42, letterSpacing: "-0.02em" }}
-      >
-        1C
-      </span>
+      <FlagOne size={size * 0.5} />
     </div>
   );
 }

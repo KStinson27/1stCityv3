@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { cloneElement, isValidElement, useState, type ReactElement } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -109,30 +109,30 @@ export function VendorForm() {
       <h2 className="text-lg font-medium">Submit a proposal</h2>
 
       {submitError && (
-        <div className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
+        <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
           {submitError}
         </div>
       )}
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <Field label="Company name" error={errors.companyName?.message}>
+        <Field id="companyName" label="Company name" error={errors.companyName?.message}>
           <input className={inputClass} placeholder="e.g. Greenline Landscaping" {...register("companyName")} />
         </Field>
-        <Field label="Contact name" error={errors.contactName?.message}>
+        <Field id="contactName" label="Contact name" error={errors.contactName?.message}>
           <input className={inputClass} placeholder="Full name" {...register("contactName")} />
         </Field>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <Field label="Email" error={errors.email?.message}>
+        <Field id="email" label="Email" error={errors.email?.message}>
           <input className={inputClass} type="email" placeholder="you@company.com" {...register("email")} />
         </Field>
-        <Field label="Phone" error={errors.phone?.message}>
+        <Field id="phone" label="Phone" error={errors.phone?.message}>
           <input className={inputClass} type="tel" placeholder="(555) 000-0000" {...register("phone")} />
         </Field>
       </div>
 
-      <Field label="Service type" error={errors.serviceType?.message}>
+      <Field id="serviceType" label="Service type" error={errors.serviceType?.message}>
         <select className={inputClass} defaultValue="" {...register("serviceType")}>
           <option value="" disabled>
             Select one...
@@ -145,7 +145,7 @@ export function VendorForm() {
         </select>
       </Field>
 
-      <Field label="Tell us about your business" error={errors.message?.message}>
+      <Field id="message" label="Tell us about your business" error={errors.message?.message}>
         <textarea
           className={inputClass}
           rows={5}
@@ -194,7 +194,11 @@ export function VendorForm() {
             />
           </label>
         )}
-        {fileError && <span className={errorClass}>{fileError}</span>}
+        {fileError && (
+          <span role="alert" className={errorClass}>
+            {fileError}
+          </span>
+        )}
       </div>
 
       <div className="flex flex-wrap items-center gap-4 pt-1">
@@ -214,19 +218,34 @@ export function VendorForm() {
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
-  children: React.ReactNode;
+  children: ReactElement<{ id?: string; "aria-invalid"?: boolean; "aria-describedby"?: string }>;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div className="flex flex-1 flex-col gap-1.5">
-      <label className={labelClass}>{label}</label>
-      {children}
-      {error && <span className={errorClass}>{error}</span>}
+      <label htmlFor={id} className={labelClass}>
+        {label}
+      </label>
+      {isValidElement(children)
+        ? cloneElement(children, {
+            id,
+            "aria-invalid": error ? true : undefined,
+            "aria-describedby": error ? errorId : undefined,
+          })
+        : children}
+      {error && (
+        <span id={errorId} role="alert" className={errorClass}>
+          {error}
+        </span>
+      )}
     </div>
   );
 }

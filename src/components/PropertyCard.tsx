@@ -1,12 +1,25 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Property } from "@/lib/types";
 
 export function PropertyCard({ property }: { property: Property }) {
   return (
     <div className="flex flex-col overflow-hidden rounded bg-surface shadow-card">
-      <div className="flex h-[200px] items-center justify-center bg-[#eeeeee]">
-        <span className="text-[13px] text-[#9e9e9e]">Property photo coming soon</span>
-      </div>
+      {property.photos[0] ? (
+        <div className="relative h-[200px] bg-[#eeeeee]">
+          <Image
+            src={property.photos[0]}
+            alt={property.name}
+            fill
+            sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+            className="object-cover"
+          />
+        </div>
+      ) : (
+        <div className="flex h-[200px] items-center justify-center bg-[#eeeeee]">
+          <span className="text-[13px] text-[#9e9e9e]">Property photo coming soon</span>
+        </div>
+      )}
       <div className="flex flex-col gap-2 p-4">
         <span
           className={

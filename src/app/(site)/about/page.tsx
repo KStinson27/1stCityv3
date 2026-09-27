@@ -4,16 +4,18 @@ import { properties, subsidizedCount } from "@/data/properties";
 
 export const metadata: Metadata = { title: "About" };
 
+// Bios are intentionally brief until real background/history copy is
+// provided — see PLAN.md §8. Update these two strings directly when ready.
 const LEADERSHIP = [
   {
     name: "Freddie Dubose",
     title: "Owner",
-    bio: "Freddie Dubose is the owner of 1st City LLC. [ Add background: years in property management, focus areas, community involvement. ]",
+    bio: "Freddie Dubose is the owner of 1st City LLC.",
   },
   {
     name: "Lori Ann Stinson",
     title: "Director",
-    bio: "Lori Ann Stinson is the director of 1st City LLC. [ Add background: role responsibilities, experience, focus areas. ]",
+    bio: "Lori Ann Stinson is the director of 1st City LLC.",
   },
 ];
 
@@ -26,8 +28,9 @@ export default function AboutPage() {
         </span>
         <h1 className="text-[38px] font-bold leading-tight">About 1st City LLC</h1>
         <p className="text-[15px] leading-relaxed text-text-secondary">
+          {/* Expand with 1-2 sentences on company mission/history once provided — see PLAN.md §8. */}
           1st City LLC manages quality market-rate and subsidized housing throughout the
-          city. [ Add 1–2 sentences on company mission and history. ]
+          city.
         </p>
       </section>
 
@@ -59,8 +62,12 @@ export default function AboutPage() {
             <p className="text-sm leading-relaxed text-[#424242]">
               <strong>Reasonable accommodations.</strong> Applicants and residents with
               disabilities may request a reasonable accommodation or modification at any
-              point in the application or tenancy process by contacting the property
-              office or [ accommodations contact / email ].
+              point in the application or tenancy process by contacting their property
+              office directly, or by emailing{" "}
+              <a href="mailto:info@1stcityllc.example" className="underline">
+                info@1stcityllc.example
+              </a>
+              . {/* Swap in a dedicated accommodations contact/line here if one is set up. */}
             </p>
           </div>
         </div>

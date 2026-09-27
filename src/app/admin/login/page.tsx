@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { LogoMark } from "@/components/Logo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -31,8 +32,8 @@ export default function AdminLoginPage() {
       <section className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="flex w-full max-w-[420px] flex-col gap-6 rounded bg-surface p-10 shadow-card">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-[10px] bg-primary">
-              <span className="text-lg font-bold text-white">1C</span>
+            <div className="rounded-lg border border-border">
+              <LogoMark size={48} />
             </div>
             <div className="flex flex-col gap-0.5">
               <h1 className="text-xl font-bold">Staff Portal</h1>
@@ -44,7 +45,7 @@ export default function AdminLoginPage() {
 
           <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
             {error && (
-              <div className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3 text-sm text-[#b71c1c]">
+              <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3 text-sm text-[#b71c1c]">
                 {error}
               </div>
             )}

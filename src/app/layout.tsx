@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import { SITE_URL } from "@/lib/site";
 
 const roboto = Roboto({
   variable: "--font-roboto",
@@ -8,13 +9,28 @@ const roboto = Roboto({
   weight: ["300", "400", "500", "700"],
 });
 
+const description =
+  "1st City LLC manages quality market-rate and subsidized housing throughout the city.";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "1st City LLC",
     template: "%s — 1st City LLC",
   },
-  description:
-    "1st City LLC manages quality market-rate and subsidized housing throughout the city.",
+  description,
+  openGraph: {
+    siteName: "1st City LLC",
+    type: "website",
+    locale: "en_US",
+    title: "1st City LLC",
+    description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "1st City LLC",
+    description,
+  },
 };
 
 // Public pages get the marketing Header/Footer via (site)/layout.tsx;

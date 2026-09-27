@@ -15,6 +15,12 @@ export default async function AdminProtectedLayout({
 
   return (
     <>
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-primary-dark focus:shadow-card"
+      >
+        Skip to main content
+      </a>
       <header className="flex h-[72px] items-center justify-between bg-primary px-4 shadow-appbar md:px-16">
         <div className="flex items-center gap-3.5">
           <Link href="/admin" className="flex items-center gap-2.5">
@@ -32,7 +38,9 @@ export default async function AdminProtectedLayout({
           <AdminSignOutButton />
         </div>
       </header>
-      <main className="flex flex-1 flex-col">{children}</main>
+      <main id="main-content" className="flex flex-1 flex-col">
+        {children}
+      </main>
     </>
   );
 }

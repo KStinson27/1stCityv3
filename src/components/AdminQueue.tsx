@@ -113,13 +113,14 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
         </div>
       </section>
 
-      <section className="flex flex-wrap items-center gap-2 px-4 pt-5 md:px-16">
+      <section className="flex flex-wrap items-center gap-2 px-4 pt-5 md:px-16" role="group" aria-label="Filter by status">
         {TABS.map((t) => {
           const active = tab === t.id;
           return (
             <button
               key={t.id}
               type="button"
+              aria-pressed={active}
               onClick={() => setTab(t.id)}
               className={
                 "flex items-center gap-1.5 rounded-full px-4 py-2 text-[13px] font-medium " +
@@ -148,6 +149,7 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
             <button
               key={s.id}
               type="button"
+              aria-current={selected?.id === s.id}
               onClick={() => selectSubmission(s.id)}
               className={
                 "flex w-full flex-col gap-1 border-t border-border px-4 py-3.5 text-left first:border-t-0 " +
@@ -242,10 +244,14 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
             <div className="h-px bg-border" />
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+              <label
+                htmlFor="submission-status"
+                className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]"
+              >
                 Status
               </label>
               <select
+                id="submission-status"
                 value={currentStatus}
                 onChange={(e) => setDraftStatus(e.target.value as SubmissionStatus)}
                 className="w-full max-w-[260px] rounded border border-input-border px-3 py-2.5 text-sm"
@@ -259,10 +265,14 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
             </div>
 
             <div className="flex flex-col gap-1.5">
-              <label className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+              <label
+                htmlFor="submission-note"
+                className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]"
+              >
                 Internal note
               </label>
               <textarea
+                id="submission-note"
                 value={currentNote}
                 onChange={(e) => setDraftNote(e.target.value)}
                 rows={3}
@@ -280,7 +290,9 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
               >
                 {pending ? "Saving…" : "Save"}
               </button>
-              {savedNote && <span className="text-xs text-text-secondary">{savedNote}</span>}
+              <span role="status" className="text-xs text-text-secondary">
+                {savedNote}
+              </span>
             </div>
           </div>
         )}

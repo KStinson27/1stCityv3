@@ -18,6 +18,8 @@ export type Property = {
   address: string | null;
   unitMixSummary: string | null;
   description: string | null;
+  /** Paths under /public, e.g. "/properties/comstock-tower/exterior.jpg". First is used as the main/card photo. */
+  photos: string[];
   amenities: string[];
   units: Unit[];
   incomeLimits: IncomeLimitRow[] | null;

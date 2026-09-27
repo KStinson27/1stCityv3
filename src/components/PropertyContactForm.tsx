@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { cloneElement, isValidElement, useState, type ReactElement } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -71,26 +71,26 @@ export function PropertyContactForm({
       <h1 className="text-xl font-medium">Contact about this property</h1>
 
       {submitError && (
-        <div className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
+        <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
           {submitError}
         </div>
       )}
 
       <div className="flex flex-col gap-4 sm:flex-row">
-        <Field label="Your name" error={errors.name?.message}>
+        <Field id="name" label="Your name" error={errors.name?.message}>
           <input className={inputClass} placeholder="Full name" {...register("name")} />
         </Field>
-        <Field label="Phone" error={errors.phone?.message}>
+        <Field id="phone" label="Phone" error={errors.phone?.message}>
           <input className={inputClass} type="tel" placeholder="(555) 000-0000" {...register("phone")} />
         </Field>
       </div>
 
-      <Field label="Email" error={errors.email?.message}>
+      <Field id="email" label="Email" error={errors.email?.message}>
         <input className={inputClass} type="email" placeholder="you@example.com" {...register("email")} />
       </Field>
 
-      <div className="flex flex-col gap-2">
-        <span className={labelClass}>Preferred contact method</span>
+      <fieldset className="flex flex-col gap-2 border-0 p-0">
+        <legend className={labelClass}>Preferred contact method</legend>
         <div className="flex gap-6 text-sm text-[#424242]">
           <label className="flex items-center gap-2">
             <input type="radio" value="email" {...register("preferredContact")} /> Email
@@ -99,9 +99,9 @@ export function PropertyContactForm({
             <input type="radio" value="phone" {...register("preferredContact")} /> Phone
           </label>
         </div>
-      </div>
+      </fieldset>
 
-      <Field label="Message" error={errors.message?.message}>
+      <Field id="message" label="Message" error={errors.message?.message}>
         <textarea
           className={inputClass}
           rows={5}
@@ -127,19 +127,34 @@ export function PropertyContactForm({
 }
 
 function Field({
+  id,
   label,
   error,
   children,
 }: {
+  id: string;
   label: string;
   error?: string;
-  children: React.ReactNode;
+  children: ReactElement<{ id?: string; "aria-invalid"?: boolean; "aria-describedby"?: string }>;
 }) {
+  const errorId = `${id}-error`;
   return (
     <div className="flex flex-1 flex-col gap-1.5">
-      <label className={labelClass}>{label}</label>
-      {children}
-      {error && <span className={errorClass}>{error}</span>}
+      <label htmlFor={id} className={labelClass}>
+        {label}
+      </label>
+      {isValidElement(children)
+        ? cloneElement(children, {
+            id,
+            "aria-invalid": error ? true : undefined,
+            "aria-describedby": error ? errorId : undefined,
+          })
+        : children}
+      {error && (
+        <span id={errorId} role="alert" className={errorClass}>
+          {error}
+        </span>
+      )}
     </div>
   );
 }

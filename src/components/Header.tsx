@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Logo } from "./Logo";
+import { Wordmark } from "./Logo";
 
 const NAV_LINKS = [
   { href: "/properties", label: "Properties" },
@@ -17,7 +17,7 @@ export function Header() {
     <header className="sticky top-0 z-20 bg-primary shadow-appbar">
       <div className="flex h-[72px] items-center justify-between px-4 md:px-16">
         <Link href="/" className="flex items-center" onClick={() => setMenuOpen(false)}>
-          <Logo />
+          <Wordmark />
         </Link>
 
         <nav className="hidden items-center gap-2 md:flex">

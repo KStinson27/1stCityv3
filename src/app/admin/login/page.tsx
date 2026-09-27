@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
-import { LogoMark } from "@/components/Logo";
+import { Wordmark } from "@/components/Logo";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -32,9 +32,7 @@ export default function AdminLoginPage() {
       <section className="flex flex-1 items-center justify-center px-4 py-16">
         <div className="flex w-full max-w-[420px] flex-col gap-6 rounded bg-surface p-10 shadow-card">
           <div className="flex flex-col items-center gap-3 text-center">
-            <div className="rounded-lg border border-border">
-              <LogoMark size={48} />
-            </div>
+            <Wordmark height={56} />
             <div className="flex flex-col gap-0.5">
               <h1 className="text-xl font-bold">Staff Portal</h1>
               <span className="text-[13px] text-text-secondary">

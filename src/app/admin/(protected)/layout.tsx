@@ -2,7 +2,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/auth";
-import { LogoMark } from "@/components/Logo";
+import { Wordmark } from "@/components/Logo";
 import { AdminSignOutButton } from "@/components/AdminSignOutButton";
 
 export default async function AdminProtectedLayout({
@@ -21,18 +21,17 @@ export default async function AdminProtectedLayout({
       >
         Skip to main content
       </a>
-      <header className="flex h-[72px] items-center justify-between bg-primary px-4 shadow-appbar md:px-16">
+      <header className="flex h-[72px] items-center justify-between border-b border-border bg-surface px-4 shadow-appbar md:px-16">
         <div className="flex items-center gap-3.5">
-          <Link href="/admin" className="flex items-center gap-2.5">
-            <LogoMark />
-            <span className="text-xl font-medium text-white">1st City LLC</span>
+          <Link href="/admin" className="flex items-center">
+            <Wordmark />
           </Link>
-          <span className="rounded bg-white/20 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-white">
+          <span className="rounded bg-primary-bg px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide text-primary-dark">
             Staff Portal
           </span>
         </div>
         <div className="flex items-center gap-4">
-          <span className="hidden text-[13px] text-primary-bg sm:inline">
+          <span className="hidden text-[13px] text-text-secondary sm:inline">
             Signed in as {session.user.name}
           </span>
           <AdminSignOutButton />

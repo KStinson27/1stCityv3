@@ -1,15 +1,12 @@
 import Link from "next/link";
-import { LogoMark } from "./Logo";
+import { WordmarkPlate } from "./Logo";
 
 export function Footer() {
   return (
     <footer className="mt-auto bg-[#212121] px-4 pb-8 pt-14 text-[#f5f5f5] md:px-16">
       <div className="flex flex-col justify-between gap-12 md:flex-row">
         <div className="flex max-w-[300px] flex-col gap-3">
-          <div className="flex items-center gap-2.5">
-            <LogoMark size={30} />
-            <span className="text-base font-medium">1st City LLC</span>
-          </div>
+          <WordmarkPlate />
           <p className="text-sm leading-relaxed text-[#9e9e9e]">
             1st City LLC manages quality market-rate and subsidized housing throughout the
             city.

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getPropertyBySlug, properties, subsidizedCount } from "@/data/properties";
@@ -12,46 +13,55 @@ export default function HomePage() {
   return (
     <>
       {/* Hero */}
-      <section className="flex flex-col items-center gap-10 bg-gradient-to-b from-primary-bg to-background px-4 py-16 md:flex-row md:px-16 md:py-20">
-        <div className="flex max-w-[540px] flex-col gap-5">
-          <span className="inline-flex w-fit items-center rounded-full bg-white px-3 py-1 text-xs font-bold uppercase tracking-wider text-primary-dark shadow-card">
-            Rental Properties &amp; Affordable Housing
-          </span>
-          <h1 className="text-4xl font-bold leading-tight tracking-tight md:text-5xl">
-            Quality homes across the city, for every budget.
-          </h1>
-          <p className="text-base leading-relaxed text-text-secondary">
-            1st City LLC manages market-rate and subsidized housing throughout the metro
-            area. Browse open units, see amenities and photos, and reach the property
-            contact directly.
-          </p>
-          <div className="flex flex-col gap-4 pt-2 sm:flex-row">
-            <Link
-              href="/properties"
-              className="rounded bg-primary px-6 py-3 text-center text-sm font-medium uppercase tracking-wide text-white shadow-button"
-            >
-              View Properties
-            </Link>
-            <Link
-              href="#subsidized"
-              className="rounded border border-primary px-6 py-3 text-center text-sm font-medium uppercase tracking-wide text-primary"
-            >
-              Subsidized Housing
-            </Link>
+      <section className="relative overflow-hidden bg-[#1b1b1b]">
+        <Image
+          src="/home/downtown-detroit.jpg"
+          alt="Downtown Detroit skyline"
+          fill
+          priority
+          sizes="100vw"
+          className="object-cover"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0a140c]/60 via-[#0a140c]/25 to-[#060e08]/90" />
+        <div className="relative z-10 flex flex-col gap-12 px-4 py-16 md:px-16 md:py-24">
+          <div className="flex max-w-[640px] flex-col gap-5">
+            <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary-light">
+              1st City LLC · Detroit
+            </span>
+            <h1 className="text-4xl font-black leading-tight tracking-tight text-white md:text-6xl">
+              Eastern Market to Midtown — home is closer than you think.
+            </h1>
+            <p className="max-w-[560px] text-base leading-relaxed text-[#e8f0e9] md:text-lg">
+              1st City LLC manages market-rate and subsidized housing across Detroit —
+              Eastern Market, Midtown, and beyond. Real units, real neighbors, real
+              neighborhoods.
+            </p>
+            <div className="flex flex-col gap-4 pt-2 sm:flex-row">
+              <Link
+                href="/properties"
+                className="rounded bg-primary px-7 py-3.5 text-center text-sm font-medium uppercase tracking-wide text-white shadow-button"
+              >
+                View properties
+              </Link>
+              <Link
+                href="#subsidized"
+                className="rounded border border-white/60 px-7 py-3.5 text-center text-sm font-medium uppercase tracking-wide text-white"
+              >
+                Subsidized housing
+              </Link>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4 border-t border-white/15 pt-6 sm:flex-row sm:items-center sm:gap-10">
+            <span className="text-sm text-white">{properties.length} managed properties</span>
+            <span className="hidden h-4 w-px bg-white/25 sm:block" />
+            <span className="text-sm text-[#cfe3d0]">
+              Section 8 / housing assistance accepted at select locations
+            </span>
+            <span className="hidden h-4 w-px bg-white/25 sm:block" />
+            <span className="text-sm text-[#cfe3d0]">Equal Housing Opportunity</span>
           </div>
         </div>
-        <div className="flex h-[300px] w-full items-center justify-center rounded bg-white shadow-card md:h-[380px]">
-          <span className="text-sm font-medium text-[#9e9e9e]">
-            Photo: exterior of a managed property
-          </span>
-        </div>
-      </section>
-
-      {/* Trust bar */}
-      <section className="flex flex-col items-center gap-4 border-y border-border bg-surface px-4 py-6 md:flex-row md:justify-center md:gap-12 md:px-16">
-        <TrustItem>{properties.length} managed properties</TrustItem>
-        <TrustItem>Section 8 / housing assistance accepted at select locations</TrustItem>
-        <TrustItem>Equal Housing Opportunity</TrustItem>
       </section>
 
       {/* Featured properties */}

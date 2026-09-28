@@ -250,7 +250,7 @@ export default async function PropertyDetailPage({
             </Link>
           </div>
           <div className="flex items-start gap-2.5 rounded bg-primary-bg p-[18px]">
-            <EqualHousingLogo size={20} color="#1b5e20" className="mt-0.5 shrink-0" />
+            <EqualHousingLogo size={36} className="shrink-0" />
             <span className="text-[13px] leading-relaxed text-primary-dark">
               Equal Housing Opportunity. We do not discriminate on the basis of race,
               color, national origin, religion, sex, familial status, or disability.

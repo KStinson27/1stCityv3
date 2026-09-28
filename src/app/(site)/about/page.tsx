@@ -44,7 +44,7 @@ export default function AboutPage() {
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="flex items-start gap-3">
-            <EqualHousingLogo size={22} color="#2e7d32" className="mt-0.5 shrink-0" />
+            <EqualHousingLogo size={40} className="shrink-0" />
             <p className="text-sm leading-relaxed text-[#424242]">
               <strong>Equal Housing Opportunity.</strong> 1st City LLC does not
               discriminate on the basis of race, color, national origin, religion, sex,

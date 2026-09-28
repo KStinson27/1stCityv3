@@ -4,7 +4,10 @@ import type { Property } from "@/lib/types";
 
 export function PropertyCard({ property }: { property: Property }) {
   return (
-    <div className="flex flex-col overflow-hidden rounded bg-surface shadow-card">
+    <Link
+      href={`/properties/${property.slug}`}
+      className="flex flex-col overflow-hidden rounded bg-surface shadow-card transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+    >
       {property.photos[0] ? (
         <div className="relative h-[200px] bg-[#eeeeee]">
           <Image
@@ -39,14 +42,11 @@ export function PropertyCard({ property }: { property: Property }) {
           <span className="text-sm text-text-secondary">
             {property.unitMixSummary ?? "Unit mix coming soon"}
           </span>
-          <Link
-            href={`/properties/${property.slug}`}
-            className="text-[13px] font-medium uppercase tracking-wide text-primary hover:text-primary-dark"
-          >
+          <span className="text-[13px] font-medium uppercase tracking-wide text-primary">
             View details
-          </Link>
+          </span>
         </div>
       </div>
-    </div>
+    </Link>
   );
 }

@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPropertyBySlug, properties } from "@/data/properties";
+import { PropertyGallery } from "@/components/PropertyGallery";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -38,48 +38,7 @@ export default async function PropertyDetailPage({
 
       {/* Gallery */}
       <section className="flex flex-col gap-3 px-4 pt-10 md:px-16">
-        {property.photos[0] ? (
-          <div className="relative h-[280px] overflow-hidden rounded shadow-card md:h-[420px]">
-            <Image
-              src={property.photos[0]}
-              alt={`${property.name} — main photo`}
-              fill
-              priority
-              sizes="(min-width: 768px) 1024px, 100vw"
-              className="object-cover"
-            />
-          </div>
-        ) : (
-          <div className="flex h-[280px] items-center justify-center rounded bg-[#eeeeee] shadow-card md:h-[420px]">
-            <span className="text-sm text-[#9e9e9e]">Main property photo coming soon</span>
-          </div>
-        )}
-        {property.photos.length > 1 ? (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {property.photos.slice(1, 6).map((photo, i) => (
-              <div key={photo} className="relative h-[100px] overflow-hidden rounded shadow-card">
-                <Image
-                  src={photo}
-                  alt={`${property.name} — photo ${i + 2}`}
-                  fill
-                  sizes="200px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-5">
-            {["Kitchen", "Bedroom", "Bathroom", "Common area", "Exterior"].map((label) => (
-              <div
-                key={label}
-                className="flex h-[100px] items-center justify-center rounded bg-background shadow-card"
-              >
-                <span className="text-[11px] text-[#9e9e9e]">{label}</span>
-              </div>
-            ))}
-          </div>
-        )}
+        <PropertyGallery photos={property.photos} propertyName={property.name} />
       </section>
 
       {/* Title block */}

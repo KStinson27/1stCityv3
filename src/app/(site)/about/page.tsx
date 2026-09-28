@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import { properties, subsidizedCount } from "@/data/properties";
+import { EqualHousingLogo } from "@/components/EqualHousingLogo";
 
 export const metadata: Metadata = { title: "About" };
 
@@ -43,10 +44,7 @@ export default function AboutPage() {
         </div>
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
           <div className="flex items-start gap-3">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
-              <path d="M3 9l9-7 9 7" />
-              <path d="M9 22V12h6v10" />
-            </svg>
+            <EqualHousingLogo size={22} color="#2e7d32" className="mt-0.5 shrink-0" />
             <p className="text-sm leading-relaxed text-[#424242]">
               <strong>Equal Housing Opportunity.</strong> 1st City LLC does not
               discriminate on the basis of race, color, national origin, religion, sex,

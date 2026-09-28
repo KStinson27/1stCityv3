@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { getPropertyBySlug, properties } from "@/data/properties";
 import { PropertyGallery } from "@/components/PropertyGallery";
+import { EqualHousingLogo } from "@/components/EqualHousingLogo";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -249,10 +250,7 @@ export default async function PropertyDetailPage({
             </Link>
           </div>
           <div className="flex items-start gap-2.5 rounded bg-primary-bg p-[18px]">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1b5e20" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mt-0.5 shrink-0">
-              <path d="M3 9l9-7 9 7" />
-              <path d="M9 22V12h6v10" />
-            </svg>
+            <EqualHousingLogo size={20} color="#1b5e20" className="mt-0.5 shrink-0" />
             <span className="text-[13px] leading-relaxed text-primary-dark">
               Equal Housing Opportunity. We do not discriminate on the basis of race,
               color, national origin, religion, sex, familial status, or disability.

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { WordmarkPlate } from "./Logo";
+import { EqualHousingLogo } from "./EqualHousingLogo";
 
 export function Footer() {
   return (
@@ -61,10 +62,7 @@ export function Footer() {
       <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-[#757575] md:flex-row md:items-center">
         <span>© {new Date().getFullYear()} 1st City LLC. All rights reserved.</span>
         <span className="flex items-center gap-2">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#757575" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M3 9l9-7 9 7" />
-            <path d="M9 22V12h6v10" />
-          </svg>
+          <EqualHousingLogo size={16} color="#757575" />
           Equal Housing Opportunity
         </span>
       </div>

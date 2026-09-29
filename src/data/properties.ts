@@ -166,10 +166,10 @@ export const properties: Property[] = [
     slug: "orchestra-tower",
     name: "Orchestra Tower",
     isSubsidized: true,
-    neighborhood: null,
-    address: null,
+    neighborhood: "Downtown Detroit",
+    address: "3501 Woodward Ave, Detroit, MI 48226",
     unitMixSummary: null,
-    description: null,
+    description: "Orchestra Tower is a 62+ senior living community in Downtown Detroit.",
     photos: ["/properties/orchestra-tower/main.jpg"],
     amenities: [
       "On-site laundry",
@@ -180,9 +180,8 @@ export const properties: Property[] = [
       "Pet friendly (breed restrictions apply)",
     ],
     units: [
+      { type: "Studio", bedBath: null, rent: null, availability: null },
       { type: "1 Bedroom", bedBath: null, rent: null, availability: null },
-      { type: "2 Bedroom", bedBath: null, rent: null, availability: null },
-      { type: "3 Bedroom", bedBath: null, rent: null, availability: null },
     ],
     incomeLimits: [
       { householdSize: "1 person", maxAnnualIncome: null },

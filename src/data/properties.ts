@@ -119,9 +119,11 @@ export const properties: Property[] = [
     description: null,
     photos: [
       "/properties/marketplace-court/main.jpg",
-      "/properties/marketplace-court/bedroom.jpg",
-      "/properties/marketplace-court/kitchen.jpg",
       "/properties/marketplace-court/livingroom.jpg",
+      "/properties/marketplace-court/kitchen.jpg",
+      "/properties/marketplace-court/bedroom.jpg",
+      "/properties/marketplace-court/dining.jpg",
+      "/properties/marketplace-court/livingroom-2.jpg",
     ],
     amenities: [
       "Washer/Dryer",

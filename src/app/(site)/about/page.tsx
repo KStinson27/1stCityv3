@@ -5,8 +5,6 @@ import { EqualHousingLogo } from "@/components/EqualHousingLogo";
 
 export const metadata: Metadata = { title: "About" };
 
-// Lori Ann Stinson's bio is intentionally brief until real background/history
-// copy is provided — see PLAN.md §8. Update that string directly when ready.
 const LEADERSHIP = [
   {
     name: "Freddie Dubose",
@@ -15,8 +13,8 @@ const LEADERSHIP = [
   },
   {
     name: "Lori Ann Stinson",
-    title: "Director",
-    bio: "Lori Ann Stinson is the director of 1st City LLC.",
+    title: "Director of Operations",
+    bio: "Lori joined 1st City in 2008 and is an experienced operations and housing administration professional with more than two decades of experience in financial management, regulatory compliance, and organizational operations. She currently serves as the Director of Operations at 1st City, LLC in Detroit, Michigan, where she oversees staff, resources, and administrative systems to support efficient property management and organizational performance. She holds a Bachelor of Science in Organizational Administration from Central Michigan University and is known for her strong analytical thinking, attention to detail, and ability to build efficient operational systems that support both compliance and financial performance.",
   },
 ];
 

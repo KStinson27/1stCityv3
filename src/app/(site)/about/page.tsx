@@ -5,13 +5,13 @@ import { EqualHousingLogo } from "@/components/EqualHousingLogo";
 
 export const metadata: Metadata = { title: "About" };
 
-// Bios are intentionally brief until real background/history copy is
-// provided — see PLAN.md §8. Update these two strings directly when ready.
+// Lori Ann Stinson's bio is intentionally brief until real background/history
+// copy is provided — see PLAN.md §8. Update that string directly when ready.
 const LEADERSHIP = [
   {
     name: "Freddie Dubose",
     title: "Owner",
-    bio: "Freddie Dubose is the owner of 1st City LLC.",
+    bio: "Mr. Freddie DuBose is President of Painia Development Corporation, a leader in the affordable housing and multifamily residential development industry. With over three decades of expertise in real estate development and property management, he leads the company's development, management, and strategy programs. Throughout his career he has developed over 800 housing units throughout the State of Michigan in cities such as Detroit, Flint, and Kalamazoo. Projects have included new construction and substantial rehabilitation, as well as townhouses, and garden apartments.\n\nFreddie serves on the Investment Committee of Invest Detroit and has also served on the Board of The Michigan Housing Council. He is a member of Omega Psi Phi, Sigma Pi Phi and Hope United Methodist Church. He previously served as Director of the Detroit Black Chamber Board, and as a member of Fannie-Mae House Michigan Advisory Board. Freddie believes in empowering youth and giving back to the community and does so by supporting Big Brothers and Big Sisters of America.",
   },
   {
     name: "Lori Ann Stinson",
@@ -78,7 +78,7 @@ export default function AboutPage() {
           </span>
           <h2 className="text-[26px] font-bold">Meet the team</h2>
         </div>
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
           {LEADERSHIP.map((person) => (
             <div key={person.name} className="flex flex-col gap-4 rounded bg-surface p-7 shadow-card">
               <div className="flex items-center gap-4">
@@ -92,7 +92,11 @@ export default function AboutPage() {
                   </span>
                 </div>
               </div>
-              <p className="text-sm leading-relaxed text-[#424242]">{person.bio}</p>
+              <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#424242]">
+                {person.bio.split("\n\n").map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
             </div>
           ))}
         </div>

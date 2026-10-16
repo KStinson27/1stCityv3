@@ -159,7 +159,8 @@ export const properties: Property[] = [
       "Dishwasher",
     ],
     units: [
-      { type: "2 Bedroom", bedBath: "2 Bath", rent: null, availability: null },
+      { type: "2 Bedroom - Lower", bedBath: "2 Bath", rent: null, availability: null },
+      { type: "2 Bedroom - Upper", bedBath: "2 Bath", rent: null, availability: null },
       { type: "3 Bedroom", bedBath: "2 Bath", rent: null, availability: null },
     ],
     incomeLimits: null,

@@ -53,7 +53,7 @@ export default async function PropertyDetailPage({
                 : "border border-input-border text-[#424242]")
             }
           >
-            {property.isSubsidized ? "Subsidized housing" : "Market rate"}
+            {property.isSubsidized ? "Affordable housing" : "Market rate"}
           </span>
         </div>
         <h1 className="text-[36px] font-bold">{property.name}</h1>

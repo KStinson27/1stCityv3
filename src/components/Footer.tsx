@@ -9,7 +9,7 @@ export function Footer() {
         <div className="flex max-w-[300px] flex-col gap-3">
           <WordmarkPlate />
           <p className="text-sm leading-relaxed text-[#9e9e9e]">
-            1st City LLC manages quality market-rate and subsidized housing throughout
+            1st City LLC manages quality market-rate and affordable housing throughout
             Michigan.
           </p>
         </div>
@@ -32,7 +32,7 @@ export function Footer() {
               Contact
             </Link>
             <Link href="/#subsidized" className="text-sm text-[#e0e0e0] hover:text-white">
-              Subsidized housing
+              Affordable housing
             </Link>
           </div>
 

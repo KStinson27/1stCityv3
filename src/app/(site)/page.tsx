@@ -32,7 +32,7 @@ export default function HomePage() {
               Eastern Market to Midtown — home is closer than you think.
             </h1>
             <p className="max-w-[560px] text-base leading-relaxed text-[#e8f0e9] md:text-lg">
-              1st City LLC manages market-rate and subsidized housing across Michigan —
+              1st City LLC manages market-rate and affordable housing across Michigan —
               Eastern Market, Midtown, and beyond. Real units, real neighbors, real
               neighborhoods.
             </p>
@@ -47,7 +47,7 @@ export default function HomePage() {
                 href="#subsidized"
                 className="rounded border border-white/60 px-7 py-3.5 text-center text-sm font-medium uppercase tracking-wide text-white"
               >
-                Subsidized housing
+                Affordable housing
               </Link>
             </div>
           </div>
@@ -89,7 +89,7 @@ export default function HomePage() {
             Affordable housing
           </span>
           <h2 className="text-2xl font-bold leading-tight md:text-[28px]">
-            Subsidized units at select properties
+            Affordable units at select properties
           </h2>
           <p className="text-[15px] leading-relaxed text-text-secondary">
             {subsidizedCount} of our {properties.length} properties participate in local
@@ -98,7 +98,7 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col gap-2.5 pt-1">
             <TrustItem>
-              Section 8 Housing Choice Vouchers accepted at select properties
+              Section 8 and other housing assistance accepted at select properties
             </TrustItem>
             <TrustItem>Income-based rent at qualifying properties</TrustItem>
             <TrustItem>
@@ -111,7 +111,7 @@ export default function HomePage() {
               href="/properties?filter=subsidized"
               className="rounded bg-primary px-6 py-3 text-sm font-medium uppercase tracking-wide text-white shadow-button"
             >
-              See subsidized listings
+              See affordable listings
             </Link>
             <Link href="/about#commitment" className="text-[13px] font-medium text-primary">
               Read our fair housing commitment

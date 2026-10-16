@@ -8,7 +8,7 @@ type Filter = "all" | "subsidized" | "market-rate";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All properties" },
-  { id: "subsidized", label: "Subsidized housing" },
+  { id: "subsidized", label: "Affordable housing" },
   { id: "market-rate", label: "Market rate" },
 ];
 

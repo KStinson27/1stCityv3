@@ -39,7 +39,7 @@ export default function Image() {
           1st City LLC
         </div>
         <div style={{ display: "flex", fontSize: 28, color: "#c8e6c9" }}>
-          Quality market-rate &amp; subsidized housing
+          Quality market-rate &amp; affordable housing
         </div>
       </div>
     ),

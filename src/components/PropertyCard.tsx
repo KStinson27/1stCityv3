@@ -32,7 +32,7 @@ export function PropertyCard({ property }: { property: Property }) {
               : "border border-input-border bg-background text-[#424242]")
           }
         >
-          {property.isSubsidized ? "Subsidized housing" : "Market rate"}
+          {property.isSubsidized ? "Affordable housing" : "Market rate"}
         </span>
         <h3 className="text-lg font-medium">{property.name}</h3>
         <span className="text-sm text-text-secondary">

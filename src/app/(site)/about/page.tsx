@@ -120,7 +120,7 @@ export default function AboutPage() {
             {properties.length} properties across Michigan
           </h2>
           <p className="text-[15px] leading-relaxed text-[#c8e6c9]">
-            {subsidizedCount} of our properties offer subsidized or income-based
+            {subsidizedCount} of our properties offer affordable or income-based
             housing. Browse the full list to find amenities, photos, and the on-site
             contact for each location.
           </p>

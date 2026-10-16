@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { PropertyCard } from "./PropertyCard";
 import type { Property } from "@/lib/types";
+import type { UnitAvailabilityStatus } from "@/generated/prisma/enums";
 
 type Filter = "all" | "subsidized" | "market-rate";
 
@@ -15,9 +16,11 @@ const FILTERS: { id: Filter; label: string }[] = [
 export function PropertiesExplorer({
   properties,
   initialFilter = "all",
+  statusBySlug = {},
 }: {
   properties: Property[];
   initialFilter?: Filter;
+  statusBySlug?: Record<string, UnitAvailabilityStatus>;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
@@ -84,7 +87,11 @@ export function PropertiesExplorer({
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((property) => (
-            <PropertyCard key={property.slug} property={property} />
+            <PropertyCard
+              key={property.slug}
+              property={property}
+              availabilityStatus={statusBySlug[property.slug]}
+            />
           ))}
         </div>
       ) : (

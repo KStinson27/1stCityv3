@@ -1,8 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Property } from "@/lib/types";
+import type { UnitAvailabilityStatus } from "@/generated/prisma/enums";
+import { describeStatus } from "@/lib/unitAvailabilityStatus";
 
-export function PropertyCard({ property }: { property: Property }) {
+export function PropertyCard({
+  property,
+  availabilityStatus,
+}: {
+  property: Property;
+  availabilityStatus?: UnitAvailabilityStatus;
+}) {
+  const availabilityBadge = availabilityStatus ? describeStatus(availabilityStatus) : null;
   return (
     <Link
       href={`/properties/${property.slug}`}
@@ -24,16 +33,28 @@ export function PropertyCard({ property }: { property: Property }) {
         </div>
       )}
       <div className="flex flex-col gap-2 p-4">
-        <span
-          className={
-            "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium " +
-            (property.isSubsidized
-              ? "bg-primary-bg text-primary-dark"
-              : "border border-input-border bg-background text-[#424242]")
-          }
-        >
-          {property.isSubsidized ? "Affordable housing" : "Market rate"}
-        </span>
+        <div className="flex flex-wrap gap-1.5">
+          <span
+            className={
+              "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium " +
+              (property.isSubsidized
+                ? "bg-primary-bg text-primary-dark"
+                : "border border-input-border bg-background text-[#424242]")
+            }
+          >
+            {property.isSubsidized ? "Affordable housing" : "Market rate"}
+          </span>
+          {availabilityBadge && (
+            <span
+              className={
+                "inline-flex w-fit items-center rounded-full px-3 py-1 text-xs font-medium " +
+                availabilityBadge.className
+              }
+            >
+              {availabilityBadge.label}
+            </span>
+          )}
+        </div>
         <h3 className="text-lg font-medium">{property.name}</h3>
         <span className="text-sm text-text-secondary">
           {property.neighborhood ?? "Neighborhood coming soon"}

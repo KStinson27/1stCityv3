@@ -96,6 +96,31 @@ model VendorSubmission {
   @@map("vendor_submission")
 }
 
+enum UnitAvailabilityStatus {
+  AVAILABLE
+  WAITLIST
+  FULL
+  CONTACT
+}
+
+/// Staff-editable overlay for the operationally volatile parts of a unit
+/// (rent/availability/status). Unit *types* still come from the static
+/// Property data in src/data/properties.ts — this only tracks per-unit-type
+/// state for properties already defined there.
+model UnitAvailability {
+  id           String                 @id @default(cuid())
+  propertySlug String
+  unitType     String
+  status       UnitAvailabilityStatus @default(CONTACT)
+  rent         String?
+  availability String?
+  updatedAt    DateTime               @updatedAt
+
+  @@unique([propertySlug, unitType])
+  @@index([propertySlug])
+  @@map("unit_availability")
+}
+
 /// Submissions from the general contact form (/contact) and the
 /// per-property contact form (/properties/[slug]/contact). propertySlug/
 /// propertyName are null for a general inquiry.

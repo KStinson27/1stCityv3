@@ -4,6 +4,12 @@ import type { Metadata } from "next";
 import { getPropertyBySlug, properties } from "@/data/properties";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { EqualHousingLogo } from "@/components/EqualHousingLogo";
+import {
+  computePropertyStatus,
+  describeStatus,
+  getUnitAvailabilityForSlug,
+  mergeUnits,
+} from "@/lib/unitAvailability";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -27,6 +33,10 @@ export default async function PropertyDetailPage({
   const { slug } = await params;
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
+
+  const overlay = await getUnitAvailabilityForSlug(slug);
+  const units = mergeUnits(property.units, overlay);
+  const availabilityBadge = describeStatus(computePropertyStatus(property.units, overlay));
 
   return (
     <>
@@ -54,6 +64,9 @@ export default async function PropertyDetailPage({
             }
           >
             {property.isSubsidized ? "Affordable housing" : "Market rate"}
+          </span>
+          <span className={"rounded-full px-3.5 py-1 text-xs font-medium " + availabilityBadge.className}>
+            {availabilityBadge.label}
           </span>
         </div>
         <h1 className="text-[36px] font-bold">{property.name}</h1>
@@ -182,7 +195,7 @@ export default async function PropertyDetailPage({
             )}
           </div>
 
-          {property.units.length > 0 && (
+          {units.length > 0 && (
             <div className="flex flex-col gap-4">
               <h2 className="text-xl font-medium">Unit types</h2>
               <div className="overflow-hidden rounded shadow-card">
@@ -204,7 +217,7 @@ export default async function PropertyDetailPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {property.units.map((unit) => (
+                    {units.map((unit) => (
                       <tr key={unit.type} className="border-t border-border bg-surface">
                         <td className="px-4 py-3.5 text-sm">{unit.type}</td>
                         <td className="px-4 py-3.5 text-sm">{unit.bedBath ?? "—"}</td>

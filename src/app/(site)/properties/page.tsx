@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { PropertiesExplorer } from "@/components/PropertiesExplorer";
 import { properties } from "@/data/properties";
+import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
 
 export const metadata: Metadata = {
   title: "Properties",
@@ -15,6 +16,14 @@ export default async function PropertiesPage({
   const initialFilter =
     filter === "subsidized" || filter === "market-rate" ? filter : "all";
 
+  const overlayByProperty = await getUnitAvailabilityForAllProperties();
+  const statusBySlug = Object.fromEntries(
+    properties.map((property) => [
+      property.slug,
+      computePropertyStatus(property.units, overlayByProperty[property.slug] ?? {}),
+    ]),
+  );
+
   return (
     <section className="px-4 py-12 md:px-16 md:py-14">
       <div className="mb-8 flex flex-col gap-3">
@@ -28,7 +37,11 @@ export default async function PropertiesPage({
         </p>
       </div>
 
-      <PropertiesExplorer properties={properties} initialFilter={initialFilter} />
+      <PropertiesExplorer
+        properties={properties}
+        initialFilter={initialFilter}
+        statusBySlug={statusBySlug}
+      />
     </section>
   );
 }

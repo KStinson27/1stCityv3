@@ -2,13 +2,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getPropertyBySlug, properties, subsidizedCount } from "@/data/properties";
+import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
 
 const FEATURED_SLUGS = ["comstock-tower", "devin-apartments", "cultural-gardens"];
 
-export default function HomePage() {
+export default async function HomePage() {
   const featured = FEATURED_SLUGS.map(getPropertyBySlug).filter(
     (property): property is NonNullable<typeof property> => Boolean(property)
   );
+
+  const overlayByProperty = await getUnitAvailabilityForAllProperties();
 
   return (
     <>
@@ -74,7 +77,14 @@ export default function HomePage() {
         </div>
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {featured.map((property) => (
-            <PropertyCard key={property.slug} property={property} />
+            <PropertyCard
+              key={property.slug}
+              property={property}
+              availabilityStatus={computePropertyStatus(
+                property.units,
+                overlayByProperty[property.slug] ?? {},
+              )}
+            />
           ))}
         </div>
       </section>

@@ -55,7 +55,11 @@ Chosen for: small team maintaining it, developer-managed content, a real (if sma
 /contact                   General company contact (optional, may fold into footer)
 /privacy                   Privacy Policy (content pending attorney review — see §7)
 /terms                     Terms of Use (content pending attorney review — see §7)
-/admin                     (auth-gated) Vendor submission queue: list, status, notes
+/admin                     (auth-gated) Dashboard — new-submission counts, properties needing availability
+/admin/vendor-submissions  (auth-gated) Vendor submission queue: list, status, notes
+/admin/contact-submissions (auth-gated) Contact submission queue: list, status, notes
+/admin/properties          (auth-gated) Properties list with computed availability status
+/admin/properties/[slug]   (auth-gated) Edit a property's per-unit rent/availability/status
 /admin/login               Staff sign-in
 ```
 

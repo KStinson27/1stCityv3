@@ -30,12 +30,12 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <a
-            href="tel:+15551234567"
+          <Link
+            href="/contact"
             className="ml-3 flex items-center gap-2 rounded bg-primary px-[18px] py-2 text-[13px] font-medium tracking-wide text-white shadow-button"
           >
-            (555) 123-4567
-          </a>
+            Contact Us
+          </Link>
         </nav>
 
         <button
@@ -72,12 +72,13 @@ export function Header() {
               {link.label}
             </Link>
           ))}
-          <a
-            href="tel:+15551234567"
+          <Link
+            href="/contact"
+            onClick={() => setMenuOpen(false)}
             className="mt-1 rounded bg-primary px-3 py-2 text-center text-sm font-medium text-white"
           >
-            (555) 123-4567
-          </a>
+            Contact Us
+          </Link>
         </nav>
       )}
     </header>

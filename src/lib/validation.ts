@@ -34,6 +34,15 @@ export const vendorSubmissionApiSchema = vendorSubmissionSchema.extend({
   attachmentName: z.string().trim().optional(),
 });
 
+export const contactSchema = z.object({
+  name: z.string().trim().min(1, "Your name is required"),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
+  phone: phoneSchema,
+  message: z.string().trim().min(1, "Please add a short message"),
+});
+
+export type ContactFormValues = z.infer<typeof contactSchema>;
+
 export const propertyContactSchema = z.object({
   name: z.string().trim().min(1, "Your name is required"),
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),

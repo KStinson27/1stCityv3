@@ -28,6 +28,9 @@ export function Footer() {
             <Link href="/about" className="text-sm text-[#e0e0e0] hover:text-white">
               About
             </Link>
+            <Link href="/contact" className="text-sm text-[#e0e0e0] hover:text-white">
+              Contact
+            </Link>
             <Link href="/#subsidized" className="text-sm text-[#e0e0e0] hover:text-white">
               Subsidized housing
             </Link>

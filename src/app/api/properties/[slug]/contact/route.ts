@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { propertyContactSchema } from "@/lib/validation";
 import { getPropertyBySlug } from "@/data/properties";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(
   request: Request,
@@ -22,6 +23,19 @@ export async function POST(
   }
 
   const message = parsed.data;
+
+  await prisma.contactSubmission.create({
+    data: {
+      name: message.name,
+      email: message.email,
+      phone: message.phone || null,
+      message: message.message,
+      preferredContact: message.preferredContact,
+      propertySlug: property.slug,
+      propertyName: property.name,
+    },
+  });
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const notifyEmail = property.contactEmail ?? "detroit1stcity@1stcityllc.com";
 
@@ -49,11 +63,12 @@ export async function POST(
       });
     } catch (error) {
       console.error("Failed to send property contact email:", error);
+      // Don't fail the request over an email delivery issue — the
+      // submission is already saved and visible in /admin.
     }
   } else {
     console.info(
-      `RESEND_API_KEY not set — inquiry for ${property.name} logged instead of emailed:`,
-      message
+      `RESEND_API_KEY not set — no email sent for ${property.name}; submission saved to /admin.`
     );
   }
 

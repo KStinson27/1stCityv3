@@ -95,3 +95,24 @@ model VendorSubmission {
   @@index([status])
   @@map("vendor_submission")
 }
+
+/// Submissions from the general contact form (/contact) and the
+/// per-property contact form (/properties/[slug]/contact). propertySlug/
+/// propertyName are null for a general inquiry.
+model ContactSubmission {
+  id                String           @id @default(cuid())
+  name              String
+  email             String
+  phone             String?
+  message           String
+  propertySlug      String?
+  propertyName      String?
+  preferredContact  String?
+  status            SubmissionStatus @default(NEW)
+  internalNote      String?
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+
+  @@index([status])
+  @@map("contact_submission")
+}

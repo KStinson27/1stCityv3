@@ -4,6 +4,7 @@ import Link from "next/link";
 import { auth } from "@/lib/auth";
 import { Wordmark } from "@/components/Logo";
 import { AdminSignOutButton } from "@/components/AdminSignOutButton";
+import { AdminNav } from "@/components/AdminNav";
 
 export default async function AdminProtectedLayout({
   children,
@@ -37,6 +38,7 @@ export default async function AdminProtectedLayout({
           <AdminSignOutButton />
         </div>
       </header>
+      <AdminNav />
       <main id="main-content" className="flex flex-1 flex-col">
         {children}
       </main>

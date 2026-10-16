@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { contactApiSchema } from "@/lib/validation";
+import { prisma } from "@/lib/prisma";
 
 async function verifyRecaptcha(token: string | undefined, secretKey: string): Promise<boolean> {
   if (!token) return false;
@@ -37,6 +38,15 @@ export async function POST(request: Request) {
     }
   }
 
+  await prisma.contactSubmission.create({
+    data: {
+      name: message.name,
+      email: message.email,
+      phone: message.phone || null,
+      message: message.message,
+    },
+  });
+
   const resendApiKey = process.env.RESEND_API_KEY;
   const notifyEmail = "detroit1stcity@1stcityllc.com";
 
@@ -62,9 +72,11 @@ export async function POST(request: Request) {
       });
     } catch (error) {
       console.error("Failed to send contact email:", error);
+      // Don't fail the request over an email delivery issue — the
+      // submission is already saved and visible in /admin.
     }
   } else {
-    console.info("RESEND_API_KEY not set — inquiry logged instead of emailed:", message);
+    console.info("RESEND_API_KEY not set — no email sent; submission saved to /admin.");
   }
 
   return NextResponse.json({ ok: true });

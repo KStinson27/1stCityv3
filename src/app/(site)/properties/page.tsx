@@ -23,7 +23,7 @@ export default async function PropertiesPage({
         </span>
         <h1 className="text-[34px] font-bold">Our properties</h1>
         <p className="max-w-[680px] text-[15px] text-text-secondary">
-          Market-rate and subsidized units across the city. Search or filter below, or
+          Market-rate and subsidized units across Michigan. Search or filter below, or
           open any listing for amenities, photos, and the on-site contact.
         </p>
       </div>

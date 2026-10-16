@@ -30,8 +30,8 @@ export default function AboutPage() {
         <h1 className="text-[38px] font-bold leading-tight">About 1st City LLC</h1>
         <p className="text-[15px] leading-relaxed text-text-secondary">
           {/* Expand with 1-2 sentences on company mission/history once provided — see PLAN.md §8. */}
-          1st City LLC manages quality market-rate and subsidized housing throughout the
-          city.
+          1st City LLC manages quality market-rate and subsidized housing throughout
+          Michigan.
         </p>
       </section>
 
@@ -101,7 +101,7 @@ export default function AboutPage() {
       <section className="flex flex-col items-start justify-between gap-6 bg-primary-dark px-4 py-14 md:flex-row md:items-center md:px-16">
         <div className="flex max-w-[640px] flex-col gap-2">
           <h2 className="text-2xl font-bold text-white">
-            {properties.length} properties across the city
+            {properties.length} properties across Michigan
           </h2>
           <p className="text-[15px] leading-relaxed text-[#c8e6c9]">
             {subsidizedCount} of our properties offer subsidized or income-based

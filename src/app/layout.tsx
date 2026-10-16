@@ -10,7 +10,7 @@ const roboto = Roboto({
 });
 
 const description =
-  "1st City LLC manages quality market-rate and subsidized housing throughout the city.";
+  "1st City LLC manages quality market-rate and subsidized housing throughout Michigan.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

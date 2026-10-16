@@ -26,13 +26,13 @@ export default function HomePage() {
         <div className="relative z-10 flex flex-col gap-12 px-4 py-16 md:px-16 md:py-24">
           <div className="flex max-w-[640px] flex-col gap-5">
             <span className="text-xs font-bold uppercase tracking-[0.14em] text-primary-light">
-              1st City LLC · Detroit
+              1st City LLC · Michigan
             </span>
             <h1 className="text-4xl font-black leading-tight tracking-tight text-white md:text-6xl">
               Eastern Market to Midtown — home is closer than you think.
             </h1>
             <p className="max-w-[560px] text-base leading-relaxed text-[#e8f0e9] md:text-lg">
-              1st City LLC manages market-rate and subsidized housing across Detroit —
+              1st City LLC manages market-rate and subsidized housing across Michigan —
               Eastern Market, Midtown, and beyond. Real units, real neighbors, real
               neighborhoods.
             </p>

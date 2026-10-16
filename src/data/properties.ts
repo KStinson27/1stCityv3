@@ -29,7 +29,10 @@ export const properties: Property[] = [
       "/properties/comstock-tower/ComstockTower8.jpg",
     ],
     amenities: [],
-    units: [],
+    units: [
+      { type: "1 Bedroom", bedBath: "1 Bath", rent: null, availability: null },
+      { type: "2 Bedroom", bedBath: "1 Bath", rent: null, availability: null },
+    ],
     incomeLimits: null,
     requiredDocuments: [],
     applyUrl: null,

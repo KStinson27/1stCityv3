@@ -29,9 +29,16 @@ export default function AboutPage() {
         </span>
         <h1 className="text-[38px] font-bold leading-tight">About 1st City LLC</h1>
         <p className="text-[15px] leading-relaxed text-text-secondary">
-          {/* Expand with 1-2 sentences on company mission/history once provided — see PLAN.md §8. */}
-          1st City LLC manages quality market-rate and subsidized housing throughout
-          Michigan.
+          Welcome to 1st City LLC, your trusted partner in property management
+          services. With years of experience and a passion for excellence, we are
+          dedicated to maximizing the value of your real estate experience.
+        </p>
+        <p className="text-[15px] leading-relaxed text-text-secondary">
+          At 1st City LLC, we understand the unique challenges that property owners
+          face in today&apos;s competitive market. Whether you own residential,
+          commercial, or multi-unit properties, our team of seasoned professionals is
+          committed to providing you with comprehensive solutions tailored to your
+          specific needs.
         </p>
       </section>
 

@@ -14,9 +14,9 @@ export const properties: Property[] = [
     slug: "comstock-tower",
     name: "Comstock Tower",
     isSubsidized: false,
-    neighborhood: null,
-    address: null,
-    unitMixSummary: null,
+    neighborhood: "Kalamazoo",
+    address: "5285 E H Ave, Kalamazoo, MI 49048",
+    unitMixSummary: "1-2 bedrooms",
     description: null,
     photos: [
       "/properties/comstock-tower/main.jpg",

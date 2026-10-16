@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { properties, subsidizedCount } from "@/data/properties";
@@ -9,11 +10,13 @@ const LEADERSHIP = [
   {
     name: "Freddie Dubose",
     title: "President, Painia Development Corporation",
+    photo: "/about/freddie-dubose.jpg",
     bio: "Mr. Freddie DuBose is President of Painia Development Corporation, a leader in the affordable housing and multifamily residential development industry. With over three decades of expertise in real estate development and property management, he leads the company's development, management, and strategy programs. Throughout his career he has developed over 800 housing units throughout the State of Michigan in cities such as Detroit, Flint, and Kalamazoo. Projects have included new construction and substantial rehabilitation, as well as townhouses, and garden apartments.\n\nFreddie serves on the Investment Committee of Invest Detroit and has also served on the Board of The Michigan Housing Council. He is a member of Omega Psi Phi, Sigma Pi Phi and Hope United Methodist Church. He previously served as Director of the Detroit Black Chamber Board, and as a member of Fannie-Mae House Michigan Advisory Board. Freddie believes in empowering youth and giving back to the community and does so by supporting Big Brothers and Big Sisters of America.",
   },
   {
     name: "Lori Ann Stinson",
     title: "Director of Operations",
+    photo: "/about/lori-ann-stinson.jpg",
     bio: "Lori joined 1st City in 2008 and is an experienced operations and housing administration professional with more than two decades of experience in financial management, regulatory compliance, and organizational operations. She currently serves as the Director of Operations at 1st City, LLC in Detroit, Michigan, where she oversees staff, resources, and administrative systems to support efficient property management and organizational performance. She holds a Bachelor of Science in Organizational Administration from Central Michigan University and is known for her strong analytical thinking, attention to detail, and ability to build efficient operational systems that support both compliance and financial performance.",
   },
 ];
@@ -87,9 +90,13 @@ export default function AboutPage() {
           {LEADERSHIP.map((person) => (
             <div key={person.name} className="flex flex-col gap-4 rounded bg-surface p-7 shadow-card">
               <div className="flex items-center gap-4">
-                <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-primary-bg text-[13px] text-primary-dark">
-                  Photo
-                </div>
+                <Image
+                  src={person.photo}
+                  alt={person.name}
+                  width={64}
+                  height={64}
+                  className="h-16 w-16 shrink-0 rounded-full object-cover"
+                />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-lg font-medium">{person.name}</span>
                   <span className="text-xs uppercase tracking-wide text-text-secondary">

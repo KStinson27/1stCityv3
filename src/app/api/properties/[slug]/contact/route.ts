@@ -23,7 +23,7 @@ export async function POST(
 
   const message = parsed.data;
   const resendApiKey = process.env.RESEND_API_KEY;
-  const notifyEmail = property.contactEmail ?? "info@1stcityllc.example";
+  const notifyEmail = property.contactEmail ?? "detroit1stcity@1stcityllc.com";
 
   if (resendApiKey) {
     try {

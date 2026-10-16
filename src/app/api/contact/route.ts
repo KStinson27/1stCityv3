@@ -13,7 +13,7 @@ export async function POST(request: Request) {
 
   const message = parsed.data;
   const resendApiKey = process.env.RESEND_API_KEY;
-  const notifyEmail = "info@1stcityllc.example";
+  const notifyEmail = "detroit1stcity@1stcityllc.com";
 
   if (resendApiKey) {
     try {

@@ -102,10 +102,10 @@ export default function TermsPage() {
       <Section title="Contact Us">
         <p>
           Questions about these Terms can be directed to{" "}
-          <a href="mailto:info@1stcityllc.example" className="text-primary underline">
-            info@1stcityllc.example
+          <a href="mailto:detroit1stcity@1stcityllc.com" className="text-primary underline">
+            detroit1stcity@1stcityllc.com
           </a>{" "}
-          or 220 Main Street, Suite 300, (555) 123-4567.
+          or 28 W Adams, Ste 900, Detroit, MI 48226, (313) 965-4547.
         </p>
       </Section>
     </section>

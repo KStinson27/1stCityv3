@@ -40,9 +40,9 @@ export function Footer() {
             <span className="text-xs font-bold uppercase tracking-wider text-[#757575]">
               Contact
             </span>
-            <span className="text-sm text-[#e0e0e0]">220 Main Street, Suite 300</span>
-            <span className="text-sm text-[#e0e0e0]">(555) 123-4567</span>
-            <span className="text-sm text-[#e0e0e0]">info@1stcityllc.example</span>
+            <span className="text-sm text-[#e0e0e0]">28 W Adams, Ste 900, Detroit, MI 48226</span>
+            <span className="text-sm text-[#e0e0e0]">(313) 965-4547</span>
+            <span className="text-sm text-[#e0e0e0]">detroit1stcity@1stcityllc.com</span>
           </div>
 
           <div className="flex flex-col gap-3">

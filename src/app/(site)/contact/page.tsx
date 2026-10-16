@@ -27,12 +27,12 @@ export default function ContactPage() {
           <div className="flex flex-col gap-3 rounded bg-surface p-6 shadow-card">
             <h2 className="text-lg font-medium">Our office</h2>
             <div className="flex flex-col gap-1.5 text-sm text-text-secondary">
-              <span>220 Main Street, Suite 300</span>
-              <a href="tel:+15551234567" className="text-primary hover:text-primary-dark">
-                (555) 123-4567
+              <span>28 W Adams, Ste 900, Detroit, MI 48226</span>
+              <a href="tel:+13139654547" className="text-primary hover:text-primary-dark">
+                (313) 965-4547
               </a>
-              <a href="mailto:info@1stcityllc.example" className="text-primary hover:text-primary-dark">
-                info@1stcityllc.example
+              <a href="mailto:detroit1stcity@1stcityllc.com" className="text-primary hover:text-primary-dark">
+                detroit1stcity@1stcityllc.com
               </a>
             </div>
           </div>

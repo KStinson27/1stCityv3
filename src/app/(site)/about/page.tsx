@@ -70,8 +70,8 @@ export default function AboutPage() {
               disabilities may request a reasonable accommodation or modification at any
               point in the application or tenancy process by contacting their property
               office directly, or by emailing{" "}
-              <a href="mailto:info@1stcityllc.example" className="underline">
-                info@1stcityllc.example
+              <a href="mailto:detroit1stcity@1stcityllc.com" className="underline">
+                detroit1stcity@1stcityllc.com
               </a>
               . {/* Swap in a dedicated accommodations contact/line here if one is set up. */}
             </p>

@@ -68,7 +68,7 @@ export const properties: Property[] = [
     isSubsidized: true,
     neighborhood: "Gratiot Woods",
     address: "3801 Holcomb, Detroit, MI 48214",
-    unitMixSummary: "Standard Apartments",
+    unitMixSummary: "Studio - 2 Bedrooms",
     description: null,
     photos: ["/properties/lanier-court-apartments/main.jpg"],
     amenities: ["Parking", "On-Site Laundry Room"],

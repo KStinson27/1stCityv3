@@ -93,9 +93,9 @@ export default function AboutPage() {
                 <Image
                   src={person.photo}
                   alt={person.name}
-                  width={64}
-                  height={64}
-                  className="h-16 w-16 shrink-0 rounded-full object-cover"
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 shrink-0 rounded-full object-cover"
                 />
                 <div className="flex flex-col gap-0.5">
                   <span className="text-lg font-medium">{person.name}</span>

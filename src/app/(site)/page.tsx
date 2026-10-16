@@ -118,10 +118,14 @@ export default function HomePage() {
             </Link>
           </div>
         </div>
-        <div className="flex h-[300px] w-full items-center justify-center rounded bg-background shadow-card md:h-[400px]">
-          <span className="text-sm font-medium text-[#9e9e9e]">
-            Photo: family in a managed unit
-          </span>
+        <div className="relative h-[300px] w-full overflow-hidden rounded shadow-card md:h-[400px]">
+          <Image
+            src="/home/affordable-housing-family.jpg"
+            alt="A family at home in one of our managed units"
+            fill
+            sizes="(min-width: 768px) 50vw, 100vw"
+            className="object-cover"
+          />
         </div>
       </section>
 

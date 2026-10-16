@@ -43,7 +43,7 @@ export const properties: Property[] = [
     isSubsidized: true,
     neighborhood: "Boston-Edison",
     address: "2710-2740 W Chicago, Detroit, MI 48206",
-    unitMixSummary: "Standard Apartments",
+    unitMixSummary: "1-2 Bedrooms",
     description: null,
     photos: ["/properties/devin-apartments/main.jpg"],
     amenities: ["Parking", "On-Site Laundry Room"],

@@ -8,6 +8,7 @@ const LINKS = [
   { href: "/admin/vendor-submissions", label: "Vendor Submissions" },
   { href: "/admin/contact-submissions", label: "Contact Submissions" },
   { href: "/admin/properties", label: "Properties" },
+  { href: "/admin/documents", label: "Documents" },
 ];
 
 export function AdminNav() {

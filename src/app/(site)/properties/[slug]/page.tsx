@@ -16,6 +16,7 @@ import {
   mergePropertyContent,
   resolvePhotos,
 } from "@/lib/propertyContent";
+import { getSiteDocument, RENTAL_APPLICATION_KEY } from "@/lib/siteDocument";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -40,10 +41,11 @@ export default async function PropertyDetailPage({
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
 
-  const [overlay, contentRow, dbPhotos] = await Promise.all([
+  const [overlay, contentRow, dbPhotos, rentalApplication] = await Promise.all([
     getUnitAvailabilityForSlug(slug),
     getPropertyContent(slug),
     getPropertyPhotos(slug),
+    property.isSubsidized ? getSiteDocument(RENTAL_APPLICATION_KEY) : Promise.resolve(null),
   ]);
   const units = mergeUnits(property.units, overlay);
   const availabilityBadge = describeStatus(computePropertyStatus(property.units, overlay));
@@ -182,6 +184,22 @@ export default async function PropertyDetailPage({
                     (confirm the exact document checklist for this property)
                   </span>
                 </div>
+              )}
+
+              {rentalApplication && (
+                <a
+                  href={rentalApplication.url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="flex w-fit items-center gap-2 rounded bg-primary px-5 py-2.5 text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
+                >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                  </svg>
+                  Download application (PDF)
+                </a>
               )}
             </div>
           )}

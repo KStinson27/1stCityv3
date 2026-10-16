@@ -111,6 +111,18 @@ model PropertyPhoto {
   @@map("property_photo")
 }
 
+/// Shared, staff-uploaded documents (Vercel Blob), keyed by a fixed slug
+/// rather than per-property — e.g. the one rental application form used
+/// across all affordable-housing properties.
+model SiteDocument {
+  key       String   @id
+  url       String
+  fileName  String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_document")
+}
+
 model VendorSubmission {
   id             String           @id @default(cuid())
   companyName    String

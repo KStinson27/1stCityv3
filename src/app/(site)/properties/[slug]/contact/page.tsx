@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { PropertyContactForm } from "@/components/PropertyContactForm";
 import { getPropertyBySlug, properties } from "@/data/properties";
+import { getPropertyContent } from "@/lib/propertyContent";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -26,6 +27,9 @@ export default async function PropertyContactPage({
   const { slug } = await params;
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
+
+  const content = await getPropertyContent(slug);
+  const contactName = content?.contactName ?? property.contactName;
 
   return (
     <>
@@ -70,7 +74,7 @@ export default async function PropertyContactPage({
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-sm font-medium">
-                  {property.contactName ?? "Property manager not listed yet"}
+                  {contactName ?? "Property manager not listed yet"}
                 </span>
                 <span className="text-xs text-text-secondary">Property Manager</span>
               </div>

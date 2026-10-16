@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { PropertiesExplorer } from "@/components/PropertiesExplorer";
 import { properties } from "@/data/properties";
 import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
+import { getAllPropertyPhotos, resolvePhotos } from "@/lib/propertyContent";
 
 export const metadata: Metadata = {
   title: "Properties",
@@ -16,11 +17,20 @@ export default async function PropertiesPage({
   const initialFilter =
     filter === "subsidized" || filter === "market-rate" ? filter : "all";
 
-  const overlayByProperty = await getUnitAvailabilityForAllProperties();
+  const [overlayByProperty, photosByProperty] = await Promise.all([
+    getUnitAvailabilityForAllProperties(),
+    getAllPropertyPhotos(),
+  ]);
   const statusBySlug = Object.fromEntries(
     properties.map((property) => [
       property.slug,
       computePropertyStatus(property.units, overlayByProperty[property.slug] ?? {}),
+    ]),
+  );
+  const photosBySlug = Object.fromEntries(
+    properties.map((property) => [
+      property.slug,
+      resolvePhotos(property, photosByProperty[property.slug] ?? []),
     ]),
   );
 
@@ -41,6 +51,7 @@ export default async function PropertiesPage({
         properties={properties}
         initialFilter={initialFilter}
         statusBySlug={statusBySlug}
+        photosBySlug={photosBySlug}
       />
     </section>
   );

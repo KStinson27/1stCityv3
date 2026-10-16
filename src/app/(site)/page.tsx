@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getPropertyBySlug, properties, subsidizedCount } from "@/data/properties";
 import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
+import { getAllPropertyPhotos, resolvePhotos } from "@/lib/propertyContent";
 
 const FEATURED_SLUGS = ["comstock-tower", "devin-apartments", "cultural-gardens"];
 
@@ -11,7 +12,10 @@ export default async function HomePage() {
     (property): property is NonNullable<typeof property> => Boolean(property)
   );
 
-  const overlayByProperty = await getUnitAvailabilityForAllProperties();
+  const [overlayByProperty, photosByProperty] = await Promise.all([
+    getUnitAvailabilityForAllProperties(),
+    getAllPropertyPhotos(),
+  ]);
 
   return (
     <>
@@ -84,6 +88,7 @@ export default async function HomePage() {
                 property.units,
                 overlayByProperty[property.slug] ?? {},
               )}
+              photos={resolvePhotos(property, photosByProperty[property.slug] ?? [])}
             />
           ))}
         </div>

@@ -17,10 +17,12 @@ export function PropertiesExplorer({
   properties,
   initialFilter = "all",
   statusBySlug = {},
+  photosBySlug = {},
 }: {
   properties: Property[];
   initialFilter?: Filter;
   statusBySlug?: Record<string, UnitAvailabilityStatus>;
+  photosBySlug?: Record<string, string[]>;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
@@ -91,6 +93,7 @@ export function PropertiesExplorer({
               key={property.slug}
               property={property}
               availabilityStatus={statusBySlug[property.slug]}
+              photos={photosBySlug[property.slug]}
             />
           ))}
         </div>

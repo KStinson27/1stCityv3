@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { propertyContactSchema } from "@/lib/validation";
 import { getPropertyBySlug } from "@/data/properties";
 import { prisma } from "@/lib/prisma";
+import { getPropertyContent } from "@/lib/propertyContent";
 
 export async function POST(
   request: Request,
@@ -36,8 +37,10 @@ export async function POST(
     },
   });
 
+  const content = await getPropertyContent(property.slug);
   const resendApiKey = process.env.RESEND_API_KEY;
-  const notifyEmail = property.contactEmail ?? "detroit1stcity@1stcityllc.com";
+  const notifyEmail =
+    (content?.contactEmail ?? property.contactEmail) ?? "detroit1stcity@1stcityllc.com";
 
   if (resendApiKey) {
     try {

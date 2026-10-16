@@ -7,20 +7,23 @@ import { describeStatus } from "@/lib/unitAvailabilityStatus";
 export function PropertyCard({
   property,
   availabilityStatus,
+  photos,
 }: {
   property: Property;
   availabilityStatus?: UnitAvailabilityStatus;
+  photos?: string[];
 }) {
   const availabilityBadge = availabilityStatus ? describeStatus(availabilityStatus) : null;
+  const cardPhoto = (photos ?? property.photos)[0];
   return (
     <Link
       href={`/properties/${property.slug}`}
       className="flex flex-col overflow-hidden rounded bg-surface shadow-card transition-shadow hover:shadow-lg focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
-      {property.photos[0] ? (
+      {cardPhoto ? (
         <div className="relative h-[200px] bg-[#eeeeee]">
           <Image
-            src={property.photos[0]}
+            src={cardPhoto}
             alt={property.name}
             fill
             sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"

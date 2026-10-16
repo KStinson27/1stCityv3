@@ -10,6 +10,12 @@ import {
   getUnitAvailabilityForSlug,
   mergeUnits,
 } from "@/lib/unitAvailability";
+import {
+  getPropertyContent,
+  getPropertyPhotos,
+  mergePropertyContent,
+  resolvePhotos,
+} from "@/lib/propertyContent";
 
 export function generateStaticParams() {
   return properties.map((property) => ({ slug: property.slug }));
@@ -34,9 +40,15 @@ export default async function PropertyDetailPage({
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
 
-  const overlay = await getUnitAvailabilityForSlug(slug);
+  const [overlay, contentRow, dbPhotos] = await Promise.all([
+    getUnitAvailabilityForSlug(slug),
+    getPropertyContent(slug),
+    getPropertyPhotos(slug),
+  ]);
   const units = mergeUnits(property.units, overlay);
   const availabilityBadge = describeStatus(computePropertyStatus(property.units, overlay));
+  const content = mergePropertyContent(property, contentRow);
+  const photos = resolvePhotos(property, dbPhotos);
 
   return (
     <>
@@ -49,7 +61,7 @@ export default async function PropertyDetailPage({
 
       {/* Gallery */}
       <section className="flex flex-col gap-3 px-4 pt-10 md:px-16">
-        <PropertyGallery photos={property.photos} propertyName={property.name} />
+        <PropertyGallery photos={photos} propertyName={property.name} />
       </section>
 
       {/* Title block */}
@@ -75,10 +87,10 @@ export default async function PropertyDetailPage({
           {property.unitMixSummary ?? "Unit mix coming soon"}
         </span>
 
-        {property.applyUrl ? (
+        {content.applyUrl ? (
           <div className="flex items-center gap-3.5 pt-1">
             <a
-              href={property.applyUrl}
+              href={content.applyUrl}
               className="flex items-center gap-2 rounded bg-primary px-6 py-3 text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
             >
               Apply online
@@ -102,7 +114,7 @@ export default async function PropertyDetailPage({
           <div className="flex flex-col gap-3">
             <h2 className="text-xl font-medium">About this property</h2>
             <p className="text-[15px] leading-relaxed text-[#424242]">
-              {property.description ??
+              {content.description ??
                 `A description for ${property.name} hasn't been added yet.`}
             </p>
           </div>
@@ -112,7 +124,7 @@ export default async function PropertyDetailPage({
               <h2 className="text-xl font-medium text-primary-dark">
                 Eligibility &amp; how to apply
               </h2>
-              {property.incomeLimits ? (
+              {content.incomeLimits ? (
                 <>
                   <p className="text-sm leading-relaxed text-primary-dark">
                     Income-based units require household income at or below the limits
@@ -132,7 +144,7 @@ export default async function PropertyDetailPage({
                         </tr>
                       </thead>
                       <tbody>
-                        {property.incomeLimits.map((row) => (
+                        {content.incomeLimits.map((row) => (
                           <tr key={row.householdSize} className="border-t border-border bg-[#fafafa]">
                             <td className="px-3.5 py-2.5 text-[13px]">{row.householdSize}</td>
                             <td className="px-3.5 py-2.5 text-[13px]">
@@ -151,13 +163,13 @@ export default async function PropertyDetailPage({
                 </p>
               )}
 
-              {property.requiredDocuments.length > 0 && (
+              {content.requiredDocuments.length > 0 && (
                 <div className="flex flex-col gap-1.5">
                   <span className="text-[13px] font-bold uppercase tracking-wide text-primary-dark">
                     Typically required at application
                   </span>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
-                    {property.requiredDocuments.map((doc) => (
+                    {content.requiredDocuments.map((doc) => (
                       <div key={doc} className="flex items-center gap-2">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1b5e20" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                           <polyline points="20 6 9 17 4 12" />
@@ -176,9 +188,9 @@ export default async function PropertyDetailPage({
 
           <div className="flex flex-col gap-4">
             <h2 className="text-xl font-medium">Amenities</h2>
-            {property.amenities.length > 0 ? (
+            {content.amenities.length > 0 ? (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                {property.amenities.map((amenity) => (
+                {content.amenities.map((amenity) => (
                   <div key={amenity} className="flex items-center gap-2.5">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2e7d32" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
@@ -243,17 +255,17 @@ export default async function PropertyDetailPage({
               </div>
               <div className="flex flex-col gap-0.5">
                 <span className="text-[15px] font-medium">
-                  {property.contactName ?? "Property manager not listed yet"}
+                  {content.contactName ?? "Property manager not listed yet"}
                 </span>
                 <span className="text-[13px] text-text-secondary">Property Manager</span>
               </div>
             </div>
             <div className="h-px bg-border" />
             <span className="text-sm text-[#424242]">
-              {property.contactPhone ?? "Phone number coming soon"}
+              {content.contactPhone ?? "Phone number coming soon"}
             </span>
             <span className="text-sm text-[#424242]">
-              {property.contactEmail ?? "Email coming soon"}
+              {content.contactEmail ?? "Email coming soon"}
             </span>
             <Link
               href={`/properties/${property.slug}/contact`}

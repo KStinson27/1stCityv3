@@ -4,10 +4,20 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@/generated/prisma/client";
 import type { SubmissionStatus, UnitAvailabilityStatus } from "@/generated/prisma/enums";
+import type { IncomeLimitRow } from "@/lib/types";
 
 const VALID_STATUSES: SubmissionStatus[] = ["NEW", "REVIEWED", "CONTACTED", "DECLINED"];
 const VALID_UNIT_STATUSES: UnitAvailabilityStatus[] = ["AVAILABLE", "WAITLIST", "FULL", "CONTACT"];
+
+function revalidatePropertyPaths(propertySlug: string) {
+  revalidatePath(`/properties/${propertySlug}`);
+  revalidatePath(`/properties/${propertySlug}/contact`);
+  revalidatePath("/properties");
+  revalidatePath("/");
+  revalidatePath("/admin/properties");
+}
 
 export async function updateVendorSubmission(input: {
   id: string;
@@ -72,10 +82,87 @@ export async function updateUnitAvailability(
     ),
   );
 
-  revalidatePath(`/properties/${propertySlug}`);
-  revalidatePath("/properties");
-  revalidatePath("/");
-  revalidatePath("/admin/properties");
+  revalidatePropertyPaths(propertySlug);
+}
+
+export async function updatePropertyContent(
+  propertySlug: string,
+  data: {
+    description: string;
+    amenities: string[];
+    incomeLimits: { householdSize: string; maxAnnualIncome: string }[];
+    requiredDocuments: string[];
+    applyUrl: string;
+    contactName: string;
+    contactPhone: string;
+    contactEmail: string;
+  },
+) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  const amenities = data.amenities.map((a) => a.trim()).filter(Boolean);
+  const requiredDocuments = data.requiredDocuments.map((d) => d.trim()).filter(Boolean);
+  const incomeLimits: IncomeLimitRow[] = data.incomeLimits
+    .map((row) => ({
+      householdSize: row.householdSize.trim(),
+      maxAnnualIncome: row.maxAnnualIncome.trim() || null,
+    }))
+    .filter((row) => row.householdSize.length > 0);
+
+  await prisma.propertyContent.upsert({
+    where: { propertySlug },
+    create: {
+      propertySlug,
+      description: data.description.trim() || null,
+      amenities,
+      incomeLimits: incomeLimits.length > 0 ? incomeLimits : Prisma.JsonNull,
+      requiredDocuments,
+      applyUrl: data.applyUrl.trim() || null,
+      contactName: data.contactName.trim() || null,
+      contactPhone: data.contactPhone.trim() || null,
+      contactEmail: data.contactEmail.trim() || null,
+    },
+    update: {
+      description: data.description.trim() || null,
+      amenities,
+      incomeLimits: incomeLimits.length > 0 ? incomeLimits : Prisma.JsonNull,
+      requiredDocuments,
+      applyUrl: data.applyUrl.trim() || null,
+      contactName: data.contactName.trim() || null,
+      contactPhone: data.contactPhone.trim() || null,
+      contactEmail: data.contactEmail.trim() || null,
+    },
+  });
+
+  revalidatePropertyPaths(propertySlug);
+}
+
+export async function deletePropertyPhoto(photoId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  const photo = await prisma.propertyPhoto.delete({ where: { id: photoId } });
+  revalidatePropertyPaths(photo.propertySlug);
+}
+
+export async function reorderPropertyPhotos(propertySlug: string, photoIds: string[]) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  await prisma.$transaction(
+    photoIds.map((id, index) =>
+      prisma.propertyPhoto.update({ where: { id }, data: { sortOrder: index } }),
+    ),
+  );
+
+  revalidatePropertyPaths(propertySlug);
 }
 
 export async function updateContactSubmission(input: {

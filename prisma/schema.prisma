@@ -77,6 +77,40 @@ enum SubmissionStatus {
   DECLINED
 }
 
+/// Staff-editable overlay for the descriptive/contact content of a
+/// property. Once a row exists for a propertySlug, it is the full source
+/// of truth for its fields (not a per-field fallback to the static
+/// src/data/properties.ts values) so that clearing a field in the admin
+/// UI actually clears it instead of resurrecting old code-managed copy.
+model PropertyContent {
+  propertySlug      String   @id
+  description       String?
+  amenities         String[]
+  incomeLimits      Json?
+  requiredDocuments String[]
+  applyUrl          String?
+  contactName       String?
+  contactPhone      String?
+  contactEmail      String?
+  updatedAt         DateTime @updatedAt
+
+  @@map("property_content")
+}
+
+/// Staff-uploaded property photos (Vercel Blob). Any rows for a
+/// propertySlug make the database the full photo set for that property;
+/// zero rows falls back to the static photos array.
+model PropertyPhoto {
+  id           String   @id @default(cuid())
+  propertySlug String
+  url          String
+  sortOrder    Int
+  createdAt    DateTime @default(now())
+
+  @@index([propertySlug])
+  @@map("property_photo")
+}
+
 model VendorSubmission {
   id             String           @id @default(cuid())
   companyName    String

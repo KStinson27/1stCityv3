@@ -46,8 +46,8 @@ export default function VendorsPage() {
             <span className="text-sm font-medium text-primary-dark">
               Questions before applying?
             </span>
-            <a href="mailto:vendors@1stcityllc.example" className="text-sm text-primary-dark">
-              vendors@1stcityllc.example
+            <a href="mailto:detroit1stcity@1stcityllc.com" className="text-sm text-primary-dark">
+              detroit1stcity@1stcityllc.com
             </a>
           </div>
         </div>

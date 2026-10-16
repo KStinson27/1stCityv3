@@ -1,9 +1,25 @@
 "use client";
 
-import { cloneElement, isValidElement, useState, type ReactElement } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState, type ReactElement } from "react";
+import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormValues } from "@/lib/validation";
+
+declare global {
+  interface Window {
+    grecaptcha?: {
+      render: (
+        container: HTMLElement,
+        options: { sitekey: string }
+      ) => number;
+      getResponse: (widgetId?: number) => string;
+      reset: (widgetId?: number) => void;
+    };
+  }
+}
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 const inputClass =
   "w-full rounded border border-input-border bg-surface px-3.5 py-3 text-sm text-text outline-none focus:border-2 focus:border-primary focus:px-[13px] focus:py-[11px]";
@@ -20,17 +36,48 @@ export function ContactForm() {
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState(false);
+  const [recaptchaWidgetId, setRecaptchaWidgetId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (
+      RECAPTCHA_SITE_KEY &&
+      recaptchaScriptLoaded &&
+      recaptchaContainerRef.current &&
+      recaptchaWidgetId === null &&
+      window.grecaptcha
+    ) {
+      setRecaptchaWidgetId(
+        window.grecaptcha.render(recaptchaContainerRef.current, { sitekey: RECAPTCHA_SITE_KEY })
+      );
+    }
+  }, [recaptchaScriptLoaded, recaptchaWidgetId]);
+
   async function onSubmit(values: ContactFormValues) {
     setSubmitError(null);
+
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      recaptchaToken = window.grecaptcha?.getResponse(recaptchaWidgetId ?? undefined);
+      if (!recaptchaToken) {
+        setSubmitError("Please complete the reCAPTCHA before sending.");
+        return;
+      }
+    }
+
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, recaptchaToken }),
       });
       if (!res.ok) throw new Error("Submission failed");
     } catch {
       setSubmitError("Something went wrong sending your message. Please try again.");
+      if (RECAPTCHA_SITE_KEY) {
+        window.grecaptcha?.reset(recaptchaWidgetId ?? undefined);
+      }
     }
   }
 
@@ -52,54 +99,65 @@ export function ContactForm() {
   }
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="flex flex-col gap-5 rounded bg-surface p-8 shadow-card"
-      noValidate
-    >
-      <h1 className="text-xl font-medium">Send us a message</h1>
-
-      {submitError && (
-        <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
-          {submitError}
-        </div>
-      )}
-
-      <div className="flex flex-col gap-4 sm:flex-row">
-        <Field id="name" label="Your name" error={errors.name?.message}>
-          <input className={inputClass} placeholder="Full name" {...register("name")} />
-        </Field>
-        <Field id="phone" label="Phone (optional)" error={errors.phone?.message}>
-          <input className={inputClass} type="tel" placeholder="(555) 000-0000" {...register("phone")} />
-        </Field>
-      </div>
-
-      <Field id="email" label="Email" error={errors.email?.message}>
-        <input className={inputClass} type="email" placeholder="you@example.com" {...register("email")} />
-      </Field>
-
-      <Field id="message" label="Message" error={errors.message?.message}>
-        <textarea
-          className={inputClass}
-          rows={5}
-          placeholder="How can we help?"
-          {...register("message")}
+    <>
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src="https://www.google.com/recaptcha/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setRecaptchaScriptLoaded(true)}
         />
-      </Field>
+      )}
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="flex flex-col gap-5 rounded bg-surface p-8 shadow-card"
+        noValidate
+      >
+        <h1 className="text-xl font-medium">Send us a message</h1>
 
-      <div className="flex flex-wrap items-center gap-4 pt-1">
-        <button
-          type="submit"
-          disabled={isSubmitting}
-          className="rounded bg-primary px-7 py-3 text-sm font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
-        >
-          {isSubmitting ? "Sending…" : "Send message"}
-        </button>
-        <span className="text-[13px] text-[#9e9e9e]">
-          We typically respond within 1 business day.
-        </span>
-      </div>
-    </form>
+        {submitError && (
+          <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
+            {submitError}
+          </div>
+        )}
+
+        <div className="flex flex-col gap-4 sm:flex-row">
+          <Field id="name" label="Your name" error={errors.name?.message}>
+            <input className={inputClass} placeholder="Full name" {...register("name")} />
+          </Field>
+          <Field id="phone" label="Phone (optional)" error={errors.phone?.message}>
+            <input className={inputClass} type="tel" placeholder="(555) 000-0000" {...register("phone")} />
+          </Field>
+        </div>
+
+        <Field id="email" label="Email" error={errors.email?.message}>
+          <input className={inputClass} type="email" placeholder="you@example.com" {...register("email")} />
+        </Field>
+
+        <Field id="message" label="Message" error={errors.message?.message}>
+          <textarea
+            className={inputClass}
+            rows={5}
+            placeholder="How can we help?"
+            {...register("message")}
+          />
+        </Field>
+
+        {RECAPTCHA_SITE_KEY && <div ref={recaptchaContainerRef} />}
+
+        <div className="flex flex-wrap items-center gap-4 pt-1">
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="rounded bg-primary px-7 py-3 text-sm font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
+          >
+            {isSubmitting ? "Sending…" : "Send message"}
+          </button>
+          <span className="text-[13px] text-[#9e9e9e]">
+            We typically respond within 1 business day.
+          </span>
+        </div>
+      </form>
+    </>
   );
 }
 

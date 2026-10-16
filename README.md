@@ -30,6 +30,10 @@ property-contact forms (via [Resend](https://resend.com)). Without it, submissio
 validated and logged to the server console instead of emailed — useful for local
 development without setting up an email provider.
 
+Set `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` to add a reCAPTCHA
+checkbox to the general contact form (`/contact`). Without them, the form has no
+captcha and submits normally.
+
 ## Project structure
 
 ```

@@ -43,6 +43,15 @@ export const contactSchema = z.object({
 
 export type ContactFormValues = z.infer<typeof contactSchema>;
 
+// What the API route accepts: the form fields above, plus the reCAPTCHA
+// token the client attaches after the widget is solved (see
+// src/components/ContactForm.tsx). Optional because the widget only
+// renders — and the server only verifies — when RECAPTCHA keys are set;
+// see src/app/api/contact/route.ts.
+export const contactApiSchema = contactSchema.extend({
+  recaptchaToken: z.string().trim().optional(),
+});
+
 export const propertyContactSchema = z.object({
   name: z.string().trim().min(1, "Your name is required"),
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),

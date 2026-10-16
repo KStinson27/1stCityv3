@@ -43,7 +43,42 @@ export default function AboutPage() {
         </p>
       </section>
 
-      <section id="commitment" className="mt-8 flex flex-col gap-5 bg-surface px-4 py-12 md:px-16">
+      <section className="mt-8 flex flex-col gap-8 px-4 py-14 md:px-16">
+        <div className="flex flex-col gap-2">
+          <span className="text-xs font-bold uppercase tracking-wider text-primary">
+            Leadership
+          </span>
+          <h2 className="text-[26px] font-bold">Meet the team</h2>
+        </div>
+        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
+          {LEADERSHIP.map((person) => (
+            <div key={person.name} className="flex flex-col gap-4 rounded bg-surface p-7 shadow-card">
+              <div className="flex items-center gap-4">
+                <Image
+                  src={person.photo}
+                  alt={person.name}
+                  width={96}
+                  height={96}
+                  className="h-24 w-24 shrink-0 rounded-full object-cover"
+                />
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-lg font-medium">{person.name}</span>
+                  <span className="text-xs uppercase tracking-wide text-text-secondary">
+                    {person.title}
+                  </span>
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#424242]">
+                {person.bio.split("\n\n").map((paragraph, i) => (
+                  <p key={i}>{paragraph}</p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="commitment" className="flex flex-col gap-5 bg-surface px-4 py-12 md:px-16">
         <div className="flex flex-col gap-2">
           <span className="text-xs font-bold uppercase tracking-wider text-primary">
             Our Commitment
@@ -76,41 +111,6 @@ export default function AboutPage() {
               . {/* Swap in a dedicated accommodations contact/line here if one is set up. */}
             </p>
           </div>
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-8 px-4 py-14 md:px-16">
-        <div className="flex flex-col gap-2">
-          <span className="text-xs font-bold uppercase tracking-wider text-primary">
-            Leadership
-          </span>
-          <h2 className="text-[26px] font-bold">Meet the team</h2>
-        </div>
-        <div className="grid grid-cols-1 items-start gap-6 md:grid-cols-2">
-          {LEADERSHIP.map((person) => (
-            <div key={person.name} className="flex flex-col gap-4 rounded bg-surface p-7 shadow-card">
-              <div className="flex items-center gap-4">
-                <Image
-                  src={person.photo}
-                  alt={person.name}
-                  width={96}
-                  height={96}
-                  className="h-24 w-24 shrink-0 rounded-full object-cover"
-                />
-                <div className="flex flex-col gap-0.5">
-                  <span className="text-lg font-medium">{person.name}</span>
-                  <span className="text-xs uppercase tracking-wide text-text-secondary">
-                    {person.title}
-                  </span>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3 text-sm leading-relaxed text-[#424242]">
-                {person.bio.split("\n\n").map((paragraph, i) => (
-                  <p key={i}>{paragraph}</p>
-                ))}
-              </div>
-            </div>
-          ))}
         </div>
       </section>
 

@@ -64,7 +64,10 @@ export function Footer() {
 
       <div className="mt-8 flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-6 text-[13px] text-[#757575] md:flex-row md:items-center">
         <span>© {new Date().getFullYear()} 1st City LLC. All rights reserved.</span>
-        <span className="flex items-center gap-2">
+        <span className="flex items-center gap-5">
+          <Link href="/admin" className="text-[#757575] hover:text-white">
+            Staff Login
+          </Link>
           <EqualHousingLogo size={32} />
         </span>
       </div>

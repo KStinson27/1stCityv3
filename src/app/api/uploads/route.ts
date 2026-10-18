@@ -14,7 +14,7 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10MB, matches the form copy
  *
  * Without BLOB_READ_WRITE_TOKEN configured, uploads are skipped and the
  * vendor form falls back to filename-only capture (same as Phase 1) —
- * same graceful-degradation pattern as the Resend integration.
+ * same graceful-degradation pattern as the SendGrid integration.
  */
 export async function POST(request: Request) {
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

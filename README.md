@@ -4,7 +4,7 @@ Property listing and vendor-intake site for 1st City LLC. See [`PLAN.md`](./PLAN
 for the full architecture plan, phased rollout, and open questions.
 
 **Status: Phase 1 (scaffold).** Static pages seeded from placeholder/mockup content,
-vendor and property-contact forms working end-to-end (validated, emailed via Resend
+vendor and property-contact forms working end-to-end (validated, emailed via SendGrid
 when configured, otherwise logged to the server console). No database yet — see
 PLAN.md §9 for Phase 2 (Neon/Prisma + the admin queue) and beyond.
 
@@ -26,9 +26,10 @@ Open [http://localhost:3000](http://localhost:3000).
 ### Environment variables
 
 Copy `.env.example` to `.env.local` to enable real email delivery for the vendor and
-property-contact forms (via [Resend](https://resend.com)). Without it, submissions are
-validated and logged to the server console instead of emailed — useful for local
-development without setting up an email provider.
+property-contact forms (via [SendGrid](https://sendgrid.com), sent from a single
+verified sender rather than a verified domain — see `src/lib/email.ts`). Without it,
+submissions are validated and logged to the server console instead of emailed — useful
+for local development without setting up an email provider.
 
 Set `NEXT_PUBLIC_RECAPTCHA_SITE_KEY` and `RECAPTCHA_SECRET_KEY` to add a reCAPTCHA
 checkbox to the general contact form (`/contact`). Without them, the form has no

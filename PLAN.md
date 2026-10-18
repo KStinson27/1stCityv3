@@ -31,7 +31,7 @@ Chosen for: small team maintaining it, developer-managed content, a real (if sma
 | ORM | **Prisma ORM** | 7.10.0 (recommended for production) | Prisma 8 is in release-candidate as of Sept 2026 (GA expected Oct 2026) — stay on 7.x until 8 is GA and you've reviewed the migration guide. |
 | Auth (admin only) | **Better Auth** | 1.x (latest) | Auth.js/NextAuth v5 maintainers now point new projects to Better Auth; v5 only makes sense when migrating an existing app. We only need auth for the internal vendor-submissions view (1–3 staff accounts), so keep it to email/password or a magic link — no public user accounts needed. |
 | Image handling | **next/image** + **Vercel Blob** (or Cloudinary free tier) | — | Property photos stored as blobs, served resized/optimized automatically. |
-| Transactional email | **Resend** + **React Email** | — | Sends the "new vendor submission" notification to staff. Free tier (3,000 emails/mo) is plenty at this scale. |
+| Transactional email | **SendGrid** | — | Sends the "new vendor submission" notification to staff, plus property/general inquiries and staff password resets. Single verified sender (not a verified domain — no DNS access to 1stcityllc.com). Free tier (100 emails/day) is plenty at this scale. |
 | Forms/validation | **React Hook Form** + **Zod** | latest | Shared schema validates the vendor form on client and server. |
 | Hosting | **Vercel** (Pro plan) | — | Built by the Next.js team; zero-config deploys, previews per PR, image optimization included. |
 | Testing | **Vitest** + **Playwright** | latest | Unit tests for form/validation logic, one Playwright smoke test per key page (home, property detail, vendor form submit). |
@@ -140,7 +140,7 @@ enum Status {
 
 1. Vendor visits `/vendors`, fills out the form (company, contact, service type, message, optional file upload).
 2. Zod validates client- and server-side; server action writes a `VendorSubmission` row and uploads any attachment to Vercel Blob.
-3. Resend sends a notification email to a staff distribution address.
+3. SendGrid sends a notification email to a staff distribution address.
 4. Staff log into `/admin`, see submissions newest-first, filter by status, and update status/notes as they follow up.
 5. No public-facing status tracking for vendors in this phase (that's the "full portal" option you didn't pick) — if that changes later, it's an additive feature, not a rearchitecture.
 
@@ -165,7 +165,7 @@ Given "some budget is fine," this targets reliability over squeezing to $0 — b
 | Vercel (hosting, previews, image optimization) | Pro, 1 seat | $20 |
 | Neon Postgres | Launch tier, light usage (small DB, low query volume) | $5–15 |
 | Vercel Blob storage (property photos) | Pay-as-you-go, a few hundred MB–low GB of images | $0–5 |
-| Resend (email notifications) | Free tier (3,000 emails/mo) | $0 |
+| SendGrid (email notifications) | Free tier (100 emails/day) | $0 |
 | Domain registration | e.g. `.com` via any registrar | ~$1–2/mo (amortized $12–15/yr) |
 | Error/uptime monitoring (optional) | e.g. Sentry free tier | $0 |
 | **Total** | | **~$26–42/mo**, call it **$30–50/mo** with headroom |

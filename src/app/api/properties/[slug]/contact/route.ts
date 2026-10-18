@@ -4,6 +4,7 @@ import { getPropertyBySlug } from "@/data/properties";
 import { prisma } from "@/lib/prisma";
 import { getPropertyContent } from "@/lib/propertyContent";
 import { checkRecaptcha } from "@/lib/recaptcha";
+import { sendEmail } from "@/lib/email";
 
 export async function POST(
   request: Request,
@@ -49,42 +50,22 @@ export async function POST(
   });
 
   const content = await getPropertyContent(property.slug);
-  const resendApiKey = process.env.RESEND_API_KEY;
   const notifyEmail =
     (content?.contactEmail ?? property.contactEmail) ?? "detroit1stcity@1stcityllc.com";
 
-  if (resendApiKey) {
-    try {
-      await fetch("https://api.resend.com/emails", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${resendApiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          from: "1st City LLC Website <notifications@1stcityllc.example>",
-          to: notifyEmail,
-          subject: `Prospect inquiry: ${property.name}`,
-          text: [
-            `Property: ${property.name}`,
-            `From: ${message.name} <${message.email}>`,
-            `Phone: ${message.phone || "(not provided)"}`,
-            `Preferred contact: ${message.preferredContact}`,
-            "",
-            message.message,
-          ].join("\n"),
-        }),
-      });
-    } catch (error) {
-      console.error("Failed to send property contact email:", error);
-      // Don't fail the request over an email delivery issue — the
-      // submission is already saved and visible in /admin.
-    }
-  } else {
-    console.info(
-      `RESEND_API_KEY not set — no email sent for ${property.name}; submission saved to /admin.`
-    );
-  }
+  await sendEmail({
+    to: notifyEmail,
+    subject: `Prospect inquiry: ${property.name}`,
+    text: [
+      `Property: ${property.name}`,
+      `From: ${message.name} <${message.email}>`,
+      `Phone: ${message.phone || "(not provided)"}`,
+      `Preferred contact: ${message.preferredContact}`,
+      "",
+      message.message,
+    ].join("\n"),
+    skippedContext: `SENDGRID_API_KEY not set — no email sent for ${property.name}; submission saved to /admin.`,
+  });
 
   return NextResponse.json({ ok: true });
 }

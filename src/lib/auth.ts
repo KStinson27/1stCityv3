@@ -2,43 +2,25 @@ import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
+import { sendEmail } from "./email";
 
 async function sendResetPasswordEmail(user: { name: string; email: string }, url: string) {
-  const resendApiKey = process.env.RESEND_API_KEY;
-  if (!resendApiKey) {
-    console.info(`RESEND_API_KEY not set — no reset email sent to ${user.email}. Reset URL: ${url}`);
-    return;
-  }
-
-  try {
-    await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${resendApiKey}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        from: "1st City LLC Staff Portal <notifications@1stcityllc.example>",
-        to: user.email,
-        subject: "Reset your 1st City staff portal password",
-        text: [
-          `Hi ${user.name || "there"},`,
-          "",
-          "A password reset was requested for your 1st City LLC staff portal account.",
-          "If you didn't request this, you can safely ignore this email — your password won't change.",
-          "",
-          `Reset your password: ${url}`,
-          "",
-          "This link expires in 1 hour.",
-        ].join("\n"),
-      }),
-    });
-  } catch (error) {
-    console.error("Failed to send password reset email:", error);
-    // Don't throw — the caller (Better Auth, or our own Server Action)
-    // already told the user to check their email; a delivery failure
-    // here shouldn't surface as a request error.
-  }
+  await sendEmail({
+    to: user.email,
+    subject: "Reset your 1st City staff portal password",
+    fromName: "1st City LLC Staff Portal",
+    text: [
+      `Hi ${user.name || "there"},`,
+      "",
+      "A password reset was requested for your 1st City LLC staff portal account.",
+      "If you didn't request this, you can safely ignore this email — your password won't change.",
+      "",
+      `Reset your password: ${url}`,
+      "",
+      "This link expires in 1 hour.",
+    ].join("\n"),
+    skippedContext: `SENDGRID_API_KEY not set — no reset email sent to ${user.email}. Reset URL: ${url}`,
+  });
 }
 
 export const auth = betterAuth({

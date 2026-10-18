@@ -1,7 +1,12 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createStaffAccount, updateStaffName, updateStaffRole } from "@/app/admin/(protected)/actions";
+import {
+  createStaffAccount,
+  sendStaffPasswordReset,
+  updateStaffName,
+  updateStaffRole,
+} from "@/app/admin/(protected)/actions";
 
 type StaffUser = { id: string; name: string; email: string; roleId: string | null };
 type RoleOption = { id: string; name: string };
@@ -97,7 +102,54 @@ function NameField({ user }: { user: StaffUser }) {
   );
 }
 
-function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOption[] }) {
+function ResetPasswordButton({ userId }: { userId: string }) {
+  const [pending, startTransition] = useTransition();
+  const [note, setNote] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleClick() {
+    setNote(null);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await sendStaffPasswordReset(userId);
+        setNote("Reset email sent.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to send reset email");
+      }
+    });
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={pending}
+        className="rounded border border-input-border px-3 py-1.5 text-xs font-medium text-primary-dark disabled:opacity-60"
+      >
+        {pending ? "Sending…" : "Send reset email"}
+      </button>
+      {error ? (
+        <span className="text-xs text-[#c62828]">{error}</span>
+      ) : (
+        <span role="status" className="text-xs text-text-secondary">
+          {note}
+        </span>
+      )}
+    </div>
+  );
+}
+
+function StaffRow({
+  user,
+  roleOptions,
+  canResetPassword,
+}: {
+  user: StaffUser;
+  roleOptions: RoleOption[];
+  canResetPassword: boolean;
+}) {
   const [roleId, setRoleId] = useState(user.roleId);
   const [pending, startTransition] = useTransition();
   const [note, setNote] = useState<string | null>(null);
@@ -124,7 +176,7 @@ function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOpt
         <NameField user={user} />
         <span className="text-xs text-text-secondary">{user.email}</span>
       </div>
-      <div className="flex items-center gap-2.5">
+      <div className="flex flex-wrap items-center gap-2.5">
         <RoleSelect value={roleId} roleOptions={roleOptions} onChange={handleChange} disabled={pending} />
         {error ? (
           <span className="text-xs text-[#c62828]">{error}</span>
@@ -133,6 +185,7 @@ function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOpt
             {note}
           </span>
         )}
+        {canResetPassword && <ResetPasswordButton userId={user.id} />}
       </div>
     </div>
   );
@@ -261,15 +314,22 @@ function NewStaffForm({ roleOptions }: { roleOptions: RoleOption[] }) {
 export function StaffManager({
   users,
   roleOptions,
+  canResetPassword,
 }: {
   users: StaffUser[];
   roleOptions: RoleOption[];
+  canResetPassword: boolean;
 }) {
   return (
     <div className="flex flex-col gap-4">
       <div className="overflow-hidden rounded bg-surface shadow-card">
         {users.map((user) => (
-          <StaffRow key={user.id} user={user} roleOptions={roleOptions} />
+          <StaffRow
+            key={user.id}
+            user={user}
+            roleOptions={roleOptions}
+            canResetPassword={canResetPassword}
+          />
         ))}
       </div>
       <NewStaffForm roleOptions={roleOptions} />

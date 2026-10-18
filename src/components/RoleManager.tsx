@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { createRole, deleteRole, updateRolePermissions } from "@/app/admin/(protected)/actions";
 import {
+  ACTIONS,
   RESOURCES,
   RESOURCE_ACTIONS,
   RESOURCE_LABEL,
@@ -33,7 +34,7 @@ function PermissionGrid({
             <th className="px-3 py-2 text-left text-xs font-bold uppercase tracking-wide text-text-secondary">
               Resource
             </th>
-            {(["view", "edit", "archive", "delete"] as Action[]).map((action) => (
+            {ACTIONS.map((action) => (
               <th
                 key={action}
                 className="px-3 py-2 text-center text-xs font-bold uppercase tracking-wide text-text-secondary"
@@ -47,7 +48,7 @@ function PermissionGrid({
           {RESOURCES.map((resource) => (
             <tr key={resource} className="border-t border-border">
               <td className="px-3 py-2 text-[13px]">{RESOURCE_LABEL[resource]}</td>
-              {(["view", "edit", "archive", "delete"] as Action[]).map((action) => {
+              {ACTIONS.map((action) => {
                 const applies = RESOURCE_ACTIONS[resource].includes(action);
                 return (
                   <td key={action} className="px-3 py-2 text-center">

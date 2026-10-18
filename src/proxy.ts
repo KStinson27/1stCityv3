@@ -10,8 +10,10 @@ import { getSessionCookie } from "better-auth/cookies";
  * real session check still happens server-side in
  * admin/(protected)/layout.tsx on every request.
  */
+const PUBLIC_ADMIN_PATHS = ["/admin/login", "/admin/forgot-password", "/admin/reset-password"];
+
 export function proxy(request: NextRequest) {
-  if (request.nextUrl.pathname.startsWith("/admin/login")) {
+  if (PUBLIC_ADMIN_PATHS.some((path) => request.nextUrl.pathname.startsWith(path))) {
     return NextResponse.next();
   }
 

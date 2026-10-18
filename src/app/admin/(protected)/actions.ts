@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { SITE_URL } from "@/lib/site";
 import { Prisma } from "@/generated/prisma/client";
 import type { SubmissionStatus, UnitAvailabilityStatus } from "@/generated/prisma/enums";
 import type { IncomeLimitRow } from "@/lib/types";
@@ -398,4 +400,20 @@ export async function updateStaffName(userId: string, name: string) {
 
   await prisma.user.update({ where: { id: userId }, data: { name: trimmed } });
   revalidatePath("/admin/staff");
+}
+
+export async function sendStaffPasswordReset(userId: string) {
+  await requirePermission("staff", "reset_password");
+
+  const user = await prisma.user.findUniqueOrThrow({
+    where: { id: userId },
+    select: { email: true },
+  });
+
+  await auth.api.requestPasswordReset({
+    body: {
+      email: user.email,
+      redirectTo: `${SITE_URL}/admin/reset-password`,
+    },
+  });
 }

@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
-import { requirePagePermission } from "@/lib/permissions";
+import { hasPermission, requirePagePermission } from "@/lib/permissions";
 import { RoleManager } from "@/components/RoleManager";
 import { StaffManager } from "@/components/StaffManager";
 import type { Action, Resource } from "@/lib/permissionTypes";
@@ -9,7 +9,8 @@ export const metadata: Metadata = { title: "Staff & Roles" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminStaffPage() {
-  await requirePagePermission("staff", "view");
+  const { permissions } = await requirePagePermission("staff", "view");
+  const canResetPassword = hasPermission(permissions, "staff", "reset_password");
 
   const [roles, users] = await Promise.all([
     prisma.role.findMany({
@@ -39,6 +40,7 @@ export default async function AdminStaffPage() {
           <StaffManager
             users={users.map((u) => ({ id: u.id, name: u.name, email: u.email, roleId: u.roleId }))}
             roleOptions={roleOptions}
+            canResetPassword={canResetPassword}
           />
         </div>
 

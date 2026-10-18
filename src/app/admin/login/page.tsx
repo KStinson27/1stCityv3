@@ -1,10 +1,20 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
 import { Wordmark } from "@/components/Logo";
+
+function ResetSuccessBanner() {
+  const searchParams = useSearchParams();
+  if (searchParams.get("reset") !== "success") return null;
+  return (
+    <div role="status" className="rounded border border-[#c8e6c9] bg-[#f1f8f2] p-3 text-sm text-[#2e7d32]">
+      Password updated — sign in with your new password.
+    </div>
+  );
+}
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -42,6 +52,9 @@ export default function AdminLoginPage() {
           </div>
 
           <form onSubmit={onSubmit} className="flex flex-col gap-5" noValidate>
+            <Suspense fallback={null}>
+              <ResetSuccessBanner />
+            </Suspense>
             {error && (
               <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3 text-sm text-[#b71c1c]">
                 {error}
@@ -74,6 +87,12 @@ export default function AdminLoginPage() {
                 placeholder="••••••••"
                 className="w-full rounded border border-input-border bg-surface px-3.5 py-3 text-sm outline-none focus:border-2 focus:border-primary focus:px-[13px] focus:py-[11px]"
               />
+              <Link
+                href="/admin/forgot-password"
+                className="self-end text-xs text-primary hover:text-primary-dark"
+              >
+                Forgot password?
+              </Link>
             </div>
             <button
               type="submit"

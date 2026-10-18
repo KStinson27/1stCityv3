@@ -8,7 +8,7 @@ export const RESOURCES = [
 ] as const;
 export type Resource = (typeof RESOURCES)[number];
 
-export const ACTIONS = ["view", "edit", "archive", "delete"] as const;
+export const ACTIONS = ["view", "edit", "archive", "delete", "reset_password"] as const;
 export type Action = (typeof ACTIONS)[number];
 
 /** Which actions are meaningful for each resource — drives the permission-matrix UI. */
@@ -18,7 +18,7 @@ export const RESOURCE_ACTIONS: Record<Resource, Action[]> = {
   property_contact_submissions: ["view", "edit", "archive", "delete"],
   properties: ["view", "edit"],
   documents: ["view", "edit"],
-  staff: ["view", "edit"],
+  staff: ["view", "edit", "reset_password"],
 };
 
 export const RESOURCE_LABEL: Record<Resource, string> = {
@@ -35,4 +35,5 @@ export const ACTION_LABEL: Record<Action, string> = {
   edit: "Edit",
   archive: "Archive",
   delete: "Delete",
+  reset_password: "Reset Password",
 };

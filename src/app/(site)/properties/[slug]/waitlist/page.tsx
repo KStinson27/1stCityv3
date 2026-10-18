@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { WaitlistSignupForm } from "@/components/WaitlistSignupForm";
 import { getPropertyBySlug } from "@/data/properties";
 import { getPropertyContent } from "@/lib/propertyContent";
+import { getUnitAvailabilityForSlug } from "@/lib/unitAvailability";
 
 // See src/app/(site)/properties/[slug]/page.tsx for why this (and the
 // other property subpages) render on every request instead of relying
@@ -22,15 +23,29 @@ export async function generateMetadata({
 
 export default async function PropertyWaitlistPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ slug: string }>;
+  searchParams: Promise<{ unitType?: string }>;
 }) {
   const { slug } = await params;
+  const { unitType } = await searchParams;
   const property = getPropertyBySlug(slug);
   if (!property) notFound();
 
-  const content = await getPropertyContent(slug);
-  const available = !property.isSubsidized && (content?.waitlistSignupEnabled ?? false);
+  const [content, overlay] = await Promise.all([
+    getPropertyContent(slug),
+    getUnitAvailabilityForSlug(slug),
+  ]);
+
+  const unit = unitType ? property.units.find((u) => u.type === unitType) : undefined;
+  const unitStatus = unit ? (overlay[unit.type]?.status ?? "CONTACT") : null;
+  const available =
+    !property.isSubsidized &&
+    (content?.waitlistSignupEnabled ?? false) &&
+    !!unit &&
+    (unitStatus === "WAITLIST" || unitStatus === "FULL");
+
   const contactName = content?.contactName ?? property.contactName;
 
   return (
@@ -83,14 +98,18 @@ export default async function PropertyWaitlistPage({
         </div>
 
         <div className="flex-1">
-          {available ? (
-            <WaitlistSignupForm propertyName={property.name} propertySlug={property.slug} />
+          {available && unit ? (
+            <WaitlistSignupForm
+              propertyName={property.name}
+              propertySlug={property.slug}
+              unitType={unit.type}
+            />
           ) : (
             <div className="flex flex-col gap-4 rounded bg-surface p-8 shadow-card">
               <h1 className="text-xl font-medium">Waitlist signup isn&apos;t available</h1>
               <p className="text-sm leading-relaxed text-text-secondary">
-                This property doesn&apos;t have waitlist signup set up right now — contact
-                the leasing office directly and they can add you to the waitlist.
+                This unit type doesn&apos;t have waitlist signup available right now —
+                contact the leasing office directly and they can add you to the waitlist.
               </p>
               <Link
                 href={`/properties/${property.slug}/contact`}

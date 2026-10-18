@@ -240,6 +240,9 @@ model ContactSubmission {
   /// set, so it's covered by the same property_contact_submissions
   /// permission as any other per-property submission.
   isWaitlistSignup  Boolean          @default(false)
+  /// Which unit type a waitlist signup is for (null otherwise) —
+  /// signup is scoped per unit type, not the whole property.
+  unitType          String?
   archivedAt        DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt

@@ -16,9 +16,11 @@ const errorClass = "text-xs text-[#c62828]";
 export function WaitlistSignupForm({
   propertyName,
   propertySlug,
+  unitType,
 }: {
   propertyName: string;
   propertySlug: string;
+  unitType: string;
 }) {
   const {
     register,
@@ -63,7 +65,7 @@ export function WaitlistSignupForm({
       const res = await fetch(`/api/properties/${propertySlug}/waitlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...values, recaptchaToken }),
+        body: JSON.stringify({ ...values, unitType, recaptchaToken }),
       });
       if (!res.ok) throw new Error("Submission failed");
     } catch {
@@ -84,7 +86,7 @@ export function WaitlistSignupForm({
         </div>
         <h1 className="text-xl font-bold">You&apos;re on the waitlist</h1>
         <p className="max-w-[420px] text-sm leading-relaxed text-text-secondary">
-          We&apos;ll reach out to you as soon as a unit opens up at{" "}
+          We&apos;ll reach out to you as soon as a <strong>{unitType}</strong> opens up at{" "}
           <strong>{propertyName}</strong>.
         </p>
       </div>
@@ -100,8 +102,8 @@ export function WaitlistSignupForm({
       <div className="flex flex-col gap-1">
         <h1 className="text-xl font-medium">Join the waitlist</h1>
         <p className="text-sm text-text-secondary">
-          We&apos;ll email or call you as soon as a unit becomes available at{" "}
-          {propertyName}.
+          We&apos;ll email or call you as soon as a <strong>{unitType}</strong> becomes
+          available at {propertyName}.
         </p>
       </div>
 

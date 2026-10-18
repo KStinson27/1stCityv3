@@ -55,10 +55,6 @@ export default async function PropertyDetailPage({
   const availabilityBadge = describeStatus(status);
   const content = mergePropertyContent(property, contentRow);
   const photos = resolvePhotos(property, dbPhotos);
-  const canJoinWaitlist =
-    !property.isSubsidized &&
-    content.waitlistSignupEnabled &&
-    (status === "WAITLIST" || status === "FULL");
 
   return (
     <>
@@ -255,16 +251,33 @@ export default async function PropertyDetailPage({
                     </tr>
                   </thead>
                   <tbody>
-                    {units.map((unit) => (
-                      <tr key={unit.type} className="border-t border-border bg-surface">
-                        <td className="px-4 py-3.5 text-sm">{unit.type}</td>
-                        <td className="px-4 py-3.5 text-sm">{unit.bedBath ?? "—"}</td>
-                        <td className="px-4 py-3.5 text-sm">{unit.rent ?? "Contact us"}</td>
-                        <td className="px-4 py-3.5 text-sm font-medium text-[#757575]">
-                          {unit.availability ?? "Contact us"}
-                        </td>
-                      </tr>
-                    ))}
+                    {units.map((unit) => {
+                      const unitStatus = overlay[unit.type]?.status ?? "CONTACT";
+                      const canJoinWaitlist =
+                        !property.isSubsidized &&
+                        content.waitlistSignupEnabled &&
+                        (unitStatus === "WAITLIST" || unitStatus === "FULL");
+                      return (
+                        <tr key={unit.type} className="border-t border-border bg-surface">
+                          <td className="px-4 py-3.5 text-sm">{unit.type}</td>
+                          <td className="px-4 py-3.5 text-sm">{unit.bedBath ?? "—"}</td>
+                          <td className="px-4 py-3.5 text-sm">{unit.rent ?? "Contact us"}</td>
+                          <td className="px-4 py-3.5 text-sm font-medium text-[#757575]">
+                            <div className="flex flex-col gap-1">
+                              <span>{unit.availability ?? "Contact us"}</span>
+                              {canJoinWaitlist && (
+                                <Link
+                                  href={`/properties/${property.slug}/waitlist?unitType=${encodeURIComponent(unit.type)}`}
+                                  className="text-xs font-medium text-primary hover:text-primary-dark"
+                                >
+                                  Join waitlist →
+                                </Link>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -293,29 +306,12 @@ export default async function PropertyDetailPage({
             <span className="text-sm text-[#424242]">
               {content.contactEmail ?? "Email coming soon"}
             </span>
-            {canJoinWaitlist ? (
-              <>
-                <Link
-                  href={`/properties/${property.slug}/waitlist`}
-                  className="rounded bg-primary py-2.5 text-center text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
-                >
-                  Join the waitlist
-                </Link>
-                <Link
-                  href={`/properties/${property.slug}/contact`}
-                  className="text-center text-[13px] text-primary hover:text-primary-dark"
-                >
-                  Or contact about this property
-                </Link>
-              </>
-            ) : (
-              <Link
-                href={`/properties/${property.slug}/contact`}
-                className="rounded bg-primary py-2.5 text-center text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
-              >
-                Contact about this property
-              </Link>
-            )}
+            <Link
+              href={`/properties/${property.slug}/contact`}
+              className="rounded bg-primary py-2.5 text-center text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
+            >
+              Contact about this property
+            </Link>
           </div>
           <div className="flex items-start gap-2.5 rounded bg-primary-bg p-[18px]">
             <EqualHousingLogo size={36} className="shrink-0" />

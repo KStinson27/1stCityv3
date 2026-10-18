@@ -20,6 +20,7 @@ type Submission = {
   status: SubmissionStatus;
   internalNote: string | null;
   isWaitlistSignup: boolean;
+  unitType: string | null;
   archivedAt: Date | null;
   createdAt: Date;
 };
@@ -324,6 +325,7 @@ export function ContactSubmissionQueue({
                   "General inquiry"
                 )}
               </Field>
+              {selected.unitType && <Field label="Unit type">{selected.unitType}</Field>}
               <Field label="Preferred contact">{selected.preferredContact ?? "—"}</Field>
               <Field label="Email">
                 <a href={`mailto:${selected.email}`} className="text-primary">

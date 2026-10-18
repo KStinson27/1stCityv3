@@ -91,7 +91,11 @@ export const waitlistSignupSchema = z.object({
 
 export type WaitlistSignupFormValues = z.infer<typeof waitlistSignupSchema>;
 
+// unitType is page-supplied context (which row's "Join waitlist" link
+// was clicked), not a visible form field — same treatment as
+// recaptchaToken below.
 export const waitlistSignupApiSchema = waitlistSignupSchema.extend({
+  unitType: z.string().trim().min(1, "Unit type is required"),
   recaptchaToken: z.string().trim().optional(),
 });
 

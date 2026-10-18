@@ -3,6 +3,7 @@ import { waitlistSignupApiSchema } from "@/lib/validation";
 import { getPropertyBySlug } from "@/data/properties";
 import { prisma } from "@/lib/prisma";
 import { getPropertyContent } from "@/lib/propertyContent";
+import { getUnitAvailabilityForSlug } from "@/lib/unitAvailability";
 import { checkRecaptcha } from "@/lib/recaptcha";
 import { sendEmail } from "@/lib/email";
 
@@ -49,15 +50,33 @@ export async function POST(
     );
   }
 
+  // Scoped per unit type, not the whole property — re-derive the
+  // unit's current status server-side rather than trusting the
+  // request (the "Join waitlist" link only exists on rows that
+  // qualify, but that's a UI nicety, not a security boundary).
+  const unit = property.units.find((u) => u.type === signup.unitType);
+  if (!unit) {
+    return NextResponse.json({ error: "Unknown unit type" }, { status: 400 });
+  }
+  const overlay = await getUnitAvailabilityForSlug(property.slug);
+  const unitStatus = overlay[unit.type]?.status ?? "CONTACT";
+  if (unitStatus !== "WAITLIST" && unitStatus !== "FULL") {
+    return NextResponse.json(
+      { error: "This unit type isn't waitlisted right now" },
+      { status: 400 }
+    );
+  }
+
   await prisma.contactSubmission.create({
     data: {
       name: signup.name,
       email: signup.email,
       phone: signup.phone || null,
-      message: "Waitlist signup — notify when a unit becomes available.",
+      message: `Waitlist signup for ${unit.type} — notify when a unit becomes available.`,
       propertySlug: property.slug,
       propertyName: property.name,
       isWaitlistSignup: true,
+      unitType: unit.type,
     },
   });
 
@@ -66,13 +85,14 @@ export async function POST(
 
   await sendEmail({
     to: notifyEmail,
-    subject: `Waitlist signup: ${property.name}`,
+    subject: `Waitlist signup: ${property.name} — ${unit.type}`,
     text: [
       `Property: ${property.name}`,
+      `Unit type: ${unit.type}`,
       `From: ${signup.name} <${signup.email}>`,
       `Phone: ${signup.phone || "(not provided)"}`,
       "",
-      "They asked to be notified when a unit becomes available.",
+      "They asked to be notified when this unit type becomes available.",
     ].join("\n"),
     skippedContext: `SENDGRID_API_KEY not set — no email sent for ${property.name} waitlist signup; submission saved to /admin.`,
   });

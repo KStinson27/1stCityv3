@@ -197,7 +197,7 @@ export const properties: Property[] = [
     isSubsidized: true,
     neighborhood: "Downtown Detroit",
     address: "3501 Woodward Ave, Detroit, MI 48226",
-    unitMixSummary: "Studio - 2 Bedrooms",
+    unitMixSummary: "Studio - 1 Bedroom",
     description: "Orchestra Tower is a 62+ senior living community in Downtown Detroit.",
     photos: ["/properties/orchestra-tower/main.jpg"],
     amenities: [

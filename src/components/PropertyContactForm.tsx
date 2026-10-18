@@ -1,12 +1,15 @@
 "use client";
 
-import { cloneElement, isValidElement, useState, type ReactElement } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState, type ReactElement } from "react";
+import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   propertyContactSchema,
   type PropertyContactFormValues,
 } from "@/lib/validation";
+import { RECAPTCHA_SITE_KEY } from "@/lib/recaptchaClient";
+import { HoneypotField } from "@/components/HoneypotField";
 
 const inputClass =
   "w-full rounded border border-input-border bg-surface px-3.5 py-3 text-sm text-text outline-none focus:border-2 focus:border-primary focus:px-[13px] focus:py-[11px]";
@@ -30,17 +33,48 @@ export function PropertyContactForm({
   });
   const [submitError, setSubmitError] = useState<string | null>(null);
 
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState(false);
+  const [recaptchaWidgetId, setRecaptchaWidgetId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (
+      RECAPTCHA_SITE_KEY &&
+      recaptchaScriptLoaded &&
+      recaptchaContainerRef.current &&
+      recaptchaWidgetId === null &&
+      window.grecaptcha
+    ) {
+      setRecaptchaWidgetId(
+        window.grecaptcha.render(recaptchaContainerRef.current, { sitekey: RECAPTCHA_SITE_KEY })
+      );
+    }
+  }, [recaptchaScriptLoaded, recaptchaWidgetId]);
+
   async function onSubmit(values: PropertyContactFormValues) {
     setSubmitError(null);
+
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      recaptchaToken = window.grecaptcha?.getResponse(recaptchaWidgetId ?? undefined);
+      if (!recaptchaToken) {
+        setSubmitError("Please complete the reCAPTCHA before sending.");
+        return;
+      }
+    }
+
     try {
       const res = await fetch(`/api/properties/${propertySlug}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(values),
+        body: JSON.stringify({ ...values, recaptchaToken }),
       });
       if (!res.ok) throw new Error("Submission failed");
     } catch {
       setSubmitError("Something went wrong sending your message. Please try again.");
+      if (RECAPTCHA_SITE_KEY) {
+        window.grecaptcha?.reset(recaptchaWidgetId ?? undefined);
+      }
     }
   }
 
@@ -69,6 +103,8 @@ export function PropertyContactForm({
       noValidate
     >
       <h1 className="text-xl font-medium">Contact about this property</h1>
+
+      <HoneypotField register={register} />
 
       {submitError && (
         <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
@@ -109,6 +145,15 @@ export function PropertyContactForm({
           {...register("message")}
         />
       </Field>
+
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src="https://www.google.com/recaptcha/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setRecaptchaScriptLoaded(true)}
+        />
+      )}
+      {RECAPTCHA_SITE_KEY && <div ref={recaptchaContainerRef} />}
 
       <div className="flex flex-wrap items-center gap-4 pt-1">
         <button

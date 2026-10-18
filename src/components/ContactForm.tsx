@@ -5,21 +5,8 @@ import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormValues } from "@/lib/validation";
-
-declare global {
-  interface Window {
-    grecaptcha?: {
-      render: (
-        container: HTMLElement,
-        options: { sitekey: string }
-      ) => number;
-      getResponse: (widgetId?: number) => string;
-      reset: (widgetId?: number) => void;
-    };
-  }
-}
-
-const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+import { RECAPTCHA_SITE_KEY } from "@/lib/recaptchaClient";
+import { HoneypotField } from "@/components/HoneypotField";
 
 const inputClass =
   "w-full rounded border border-input-border bg-surface px-3.5 py-3 text-sm text-text outline-none focus:border-2 focus:border-primary focus:px-[13px] focus:py-[11px]";
@@ -99,20 +86,14 @@ export function ContactForm() {
   }
 
   return (
-    <>
-      {RECAPTCHA_SITE_KEY && (
-        <Script
-          src="https://www.google.com/recaptcha/api.js?render=explicit"
-          strategy="afterInteractive"
-          onLoad={() => setRecaptchaScriptLoaded(true)}
-        />
-      )}
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="flex flex-col gap-5 rounded bg-surface p-8 shadow-card"
-        noValidate
-      >
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="flex flex-col gap-5 rounded bg-surface p-8 shadow-card"
+      noValidate
+    >
         <h1 className="text-xl font-medium">Send us a message</h1>
+
+        <HoneypotField register={register} />
 
         {submitError && (
           <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
@@ -142,6 +123,13 @@ export function ContactForm() {
           />
         </Field>
 
+        {RECAPTCHA_SITE_KEY && (
+          <Script
+            src="https://www.google.com/recaptcha/api.js?render=explicit"
+            strategy="afterInteractive"
+            onLoad={() => setRecaptchaScriptLoaded(true)}
+          />
+        )}
         {RECAPTCHA_SITE_KEY && <div ref={recaptchaContainerRef} />}
 
         <div className="flex flex-wrap items-center gap-4 pt-1">
@@ -155,9 +143,8 @@ export function ContactForm() {
           <span className="text-[13px] text-[#9e9e9e]">
             We typically respond within 1 business day.
           </span>
-        </div>
-      </form>
-    </>
+      </div>
+    </form>
   );
 }
 

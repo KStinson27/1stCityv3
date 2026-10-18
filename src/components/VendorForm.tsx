@@ -1,6 +1,7 @@
 "use client";
 
-import { cloneElement, isValidElement, useState, type ReactElement } from "react";
+import { cloneElement, isValidElement, useEffect, useRef, useState, type ReactElement } from "react";
+import Script from "next/script";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -8,6 +9,8 @@ import {
   vendorSubmissionSchema,
   type VendorSubmissionFormValues,
 } from "@/lib/validation";
+import { RECAPTCHA_SITE_KEY } from "@/lib/recaptchaClient";
+import { HoneypotField } from "@/components/HoneypotField";
 
 const inputClass =
   "w-full rounded border border-input-border bg-surface px-3.5 py-3 text-sm text-text outline-none focus:border-2 focus:border-primary focus:px-[13px] focus:py-[11px]";
@@ -28,6 +31,24 @@ export function VendorForm() {
   const [fileError, setFileError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const [attachment, setAttachment] = useState<{ url: string; name: string } | null>(null);
+
+  const recaptchaContainerRef = useRef<HTMLDivElement>(null);
+  const [recaptchaScriptLoaded, setRecaptchaScriptLoaded] = useState(false);
+  const [recaptchaWidgetId, setRecaptchaWidgetId] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (
+      RECAPTCHA_SITE_KEY &&
+      recaptchaScriptLoaded &&
+      recaptchaContainerRef.current &&
+      recaptchaWidgetId === null &&
+      window.grecaptcha
+    ) {
+      setRecaptchaWidgetId(
+        window.grecaptcha.render(recaptchaContainerRef.current, { sitekey: RECAPTCHA_SITE_KEY })
+      );
+    }
+  }, [recaptchaScriptLoaded, recaptchaWidgetId]);
 
   async function handleFileSelect(file: File | undefined) {
     if (!file) return;
@@ -64,6 +85,16 @@ export function VendorForm() {
 
   async function onSubmit(values: VendorSubmissionFormValues) {
     setSubmitError(null);
+
+    let recaptchaToken: string | undefined;
+    if (RECAPTCHA_SITE_KEY) {
+      recaptchaToken = window.grecaptcha?.getResponse(recaptchaWidgetId ?? undefined);
+      if (!recaptchaToken) {
+        setSubmitError("Please complete the reCAPTCHA before submitting.");
+        return;
+      }
+    }
+
     try {
       const res = await fetch("/api/vendor-submissions", {
         method: "POST",
@@ -72,6 +103,7 @@ export function VendorForm() {
           ...values,
           attachmentUrl: attachment?.url,
           attachmentName: attachment?.name,
+          recaptchaToken,
         }),
       });
       if (!res.ok) throw new Error("Submission failed");
@@ -80,6 +112,9 @@ export function VendorForm() {
       setAttachment(null);
     } catch {
       setSubmitError("Something went wrong sending your proposal. Please try again.");
+      if (RECAPTCHA_SITE_KEY) {
+        window.grecaptcha?.reset(recaptchaWidgetId ?? undefined);
+      }
     }
   }
 
@@ -107,6 +142,8 @@ export function VendorForm() {
       noValidate
     >
       <h2 className="text-lg font-medium">Submit a proposal</h2>
+
+      <HoneypotField register={register} />
 
       {submitError && (
         <div role="alert" className="rounded border border-[#ffcdd2] bg-[#ffebee] p-3.5 text-sm text-[#b71c1c]">
@@ -200,6 +237,15 @@ export function VendorForm() {
           </span>
         )}
       </div>
+
+      {RECAPTCHA_SITE_KEY && (
+        <Script
+          src="https://www.google.com/recaptcha/api.js?render=explicit"
+          strategy="afterInteractive"
+          onLoad={() => setRecaptchaScriptLoaded(true)}
+        />
+      )}
+      {RECAPTCHA_SITE_KEY && <div ref={recaptchaContainerRef} />}
 
       <div className="flex flex-wrap items-center gap-4 pt-1">
         <button

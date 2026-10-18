@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
-import { propertyContactSchema } from "@/lib/validation";
+import { propertyContactApiSchema } from "@/lib/validation";
 import { getPropertyBySlug } from "@/data/properties";
 import { prisma } from "@/lib/prisma";
 import { getPropertyContent } from "@/lib/propertyContent";
+import { checkRecaptcha } from "@/lib/recaptcha";
 
 export async function POST(
   request: Request,
@@ -15,7 +16,7 @@ export async function POST(
   }
 
   const body = await request.json().catch(() => null);
-  const parsed = propertyContactSchema.safeParse(body);
+  const parsed = propertyContactApiSchema.safeParse(body);
   if (!parsed.success) {
     return NextResponse.json(
       { error: "Invalid submission", issues: parsed.error.flatten().fieldErrors },
@@ -23,7 +24,17 @@ export async function POST(
     );
   }
 
-  const message = parsed.data;
+  const { recaptchaToken, website, ...message } = parsed.data;
+
+  // Honeypot: a real user never fills this in. Pretend success without
+  // writing anything or sending an email, so bots get no useful signal.
+  if (website) {
+    return NextResponse.json({ ok: true });
+  }
+
+  if (!(await checkRecaptcha(recaptchaToken))) {
+    return NextResponse.json({ error: "reCAPTCHA verification failed" }, { status: 400 });
+  }
 
   await prisma.contactSubmission.create({
     data: {

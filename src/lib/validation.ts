@@ -15,6 +15,12 @@ const phoneSchema = z
     message: "Enter a complete phone number (at least 10 digits)",
   });
 
+// Honeypot: a field real users never see or fill in (see the hidden
+// "website" input in each form component). Any non-empty value here
+// means the submission came from a bot, so the API route short-circuits
+// to a fake success without writing to the database or sending email.
+const honeypotSchema = z.string().optional();
+
 export const vendorSubmissionSchema = z.object({
   companyName: z.string().trim().min(1, "Company name is required"),
   contactName: z.string().trim().min(1, "Contact name is required"),
@@ -22,6 +28,7 @@ export const vendorSubmissionSchema = z.object({
   phone: phoneSchema,
   serviceType: z.string().min(1, "Please select a service type"),
   message: z.string().trim().min(1, "Tell us a bit about your business"),
+  website: honeypotSchema,
 });
 
 export type VendorSubmissionFormValues = z.infer<typeof vendorSubmissionSchema>;
@@ -32,6 +39,7 @@ export type VendorSubmissionFormValues = z.infer<typeof vendorSubmissionSchema>;
 export const vendorSubmissionApiSchema = vendorSubmissionSchema.extend({
   attachmentUrl: z.string().trim().optional(),
   attachmentName: z.string().trim().optional(),
+  recaptchaToken: z.string().trim().optional(),
 });
 
 export const contactSchema = z.object({
@@ -39,6 +47,7 @@ export const contactSchema = z.object({
   email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
   phone: phoneSchema,
   message: z.string().trim().min(1, "Please add a short message"),
+  website: honeypotSchema,
 });
 
 export type ContactFormValues = z.infer<typeof contactSchema>;
@@ -58,9 +67,17 @@ export const propertyContactSchema = z.object({
   phone: phoneSchema,
   preferredContact: z.enum(["email", "phone"]),
   message: z.string().trim().min(1, "Please add a short message"),
+  website: honeypotSchema,
 });
 
 export type PropertyContactFormValues = z.infer<typeof propertyContactSchema>;
+
+// What the API route accepts: the form fields above, plus the reCAPTCHA
+// token the client attaches after the widget is solved. Optional for the
+// same reason as contactApiSchema above.
+export const propertyContactApiSchema = propertyContactSchema.extend({
+  recaptchaToken: z.string().trim().optional(),
+});
 
 export const SERVICE_TYPES = [
   "Landscaping",

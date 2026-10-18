@@ -1,22 +1,7 @@
 import { NextResponse } from "next/server";
 import { contactApiSchema } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
-
-async function verifyRecaptcha(token: string | undefined, secretKey: string): Promise<boolean> {
-  if (!token) return false;
-  try {
-    const res = await fetch("https://www.google.com/recaptcha/api/siteverify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({ secret: secretKey, response: token }),
-    });
-    const data = (await res.json()) as { success: boolean };
-    return data.success === true;
-  } catch (error) {
-    console.error("Failed to verify reCAPTCHA:", error);
-    return false;
-  }
-}
+import { checkRecaptcha } from "@/lib/recaptcha";
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -28,14 +13,16 @@ export async function POST(request: Request) {
     );
   }
 
-  const { recaptchaToken, ...message } = parsed.data;
-  const recaptchaSecretKey = process.env.RECAPTCHA_SECRET_KEY;
+  const { recaptchaToken, website, ...message } = parsed.data;
 
-  if (recaptchaSecretKey) {
-    const verified = await verifyRecaptcha(recaptchaToken, recaptchaSecretKey);
-    if (!verified) {
-      return NextResponse.json({ error: "reCAPTCHA verification failed" }, { status: 400 });
-    }
+  // Honeypot: a real user never fills this in. Pretend success without
+  // writing anything or sending an email, so bots get no useful signal.
+  if (website) {
+    return NextResponse.json({ ok: true });
+  }
+
+  if (!(await checkRecaptcha(recaptchaToken))) {
+    return NextResponse.json({ error: "reCAPTCHA verification failed" }, { status: 400 });
   }
 
   await prisma.contactSubmission.create({

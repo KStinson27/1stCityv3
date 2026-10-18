@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { vendorSubmissionApiSchema } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
+import { checkRecaptcha } from "@/lib/recaptcha";
 
 /**
  * Phase 2 (see PLAN.md): submissions are now persisted so they show up
@@ -17,7 +18,17 @@ export async function POST(request: Request) {
     );
   }
 
-  const submission = parsed.data;
+  const { recaptchaToken, website, ...submission } = parsed.data;
+
+  // Honeypot: a real user never fills this in. Pretend success without
+  // writing anything or sending an email, so bots get no useful signal.
+  if (website) {
+    return NextResponse.json({ ok: true });
+  }
+
+  if (!(await checkRecaptcha(recaptchaToken))) {
+    return NextResponse.json({ error: "reCAPTCHA verification failed" }, { status: 400 });
+  }
 
   await prisma.vendorSubmission.create({
     data: {

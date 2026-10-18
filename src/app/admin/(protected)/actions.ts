@@ -43,6 +43,30 @@ export async function updateVendorSubmission(input: {
   revalidatePath("/admin/vendor-submissions");
 }
 
+export async function archiveVendorSubmission(id: string, archived: boolean) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  await prisma.vendorSubmission.update({
+    where: { id },
+    data: { archivedAt: archived ? new Date() : null },
+  });
+
+  revalidatePath("/admin/vendor-submissions");
+}
+
+export async function deleteVendorSubmission(id: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  await prisma.vendorSubmission.delete({ where: { id } });
+  revalidatePath("/admin/vendor-submissions");
+}
+
 export async function updateUnitAvailability(
   propertySlug: string,
   rows: {
@@ -186,5 +210,29 @@ export async function updateContactSubmission(input: {
     },
   });
 
+  revalidatePath("/admin/contact-submissions");
+}
+
+export async function archiveContactSubmission(id: string, archived: boolean) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  await prisma.contactSubmission.update({
+    where: { id },
+    data: { archivedAt: archived ? new Date() : null },
+  });
+
+  revalidatePath("/admin/contact-submissions");
+}
+
+export async function deleteContactSubmission(id: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+
+  await prisma.contactSubmission.delete({ where: { id } });
   revalidatePath("/admin/contact-submissions");
 }

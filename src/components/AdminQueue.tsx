@@ -1,7 +1,11 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { updateVendorSubmission } from "@/app/admin/(protected)/actions";
+import {
+  archiveVendorSubmission,
+  deleteVendorSubmission,
+  updateVendorSubmission,
+} from "@/app/admin/(protected)/actions";
 import type { SubmissionStatus } from "@/generated/prisma/enums";
 
 type Submission = {
@@ -16,6 +20,7 @@ type Submission = {
   attachmentName: string | null;
   status: SubmissionStatus;
   internalNote: string | null;
+  archivedAt: Date | null;
   createdAt: Date;
 };
 
@@ -48,20 +53,32 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
 });
 
 export function AdminQueue({ submissions }: { submissions: Submission[] }) {
+  const [view, setView] = useState<"active" | "archived">("active");
   const [tab, setTab] = useState<"ALL" | SubmissionStatus>("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(submissions[0]?.id ?? null);
   const [pending, startTransition] = useTransition();
   const [savedNote, setSavedNote] = useState<string | null>(null);
 
+  const activeCount = useMemo(
+    () => submissions.filter((s) => !s.archivedAt).length,
+    [submissions]
+  );
+  const archivedCount = submissions.length - activeCount;
+
+  const viewSubmissions = useMemo(
+    () => submissions.filter((s) => (view === "archived" ? s.archivedAt : !s.archivedAt)),
+    [submissions, view]
+  );
+
   const counts = useMemo(() => {
-    const c: Record<string, number> = { ALL: submissions.length };
-    for (const s of submissions) c[s.status] = (c[s.status] ?? 0) + 1;
+    const c: Record<string, number> = { ALL: viewSubmissions.length };
+    for (const s of viewSubmissions) c[s.status] = (c[s.status] ?? 0) + 1;
     return c;
-  }, [submissions]);
+  }, [viewSubmissions]);
 
   const filtered = useMemo(
-    () => (tab === "ALL" ? submissions : submissions.filter((s) => s.status === tab)),
-    [submissions, tab]
+    () => (tab === "ALL" ? viewSubmissions : viewSubmissions.filter((s) => s.status === tab)),
+    [viewSubmissions, tab]
   );
 
   const selected = submissions.find((s) => s.id === selectedId) ?? filtered[0] ?? null;
@@ -71,6 +88,13 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
 
   const currentStatus = draftStatus ?? selected?.status ?? "NEW";
   const currentNote = draftNote ?? selected?.internalNote ?? "";
+
+  function selectView(next: "active" | "archived") {
+    setView(next);
+    setTab("ALL");
+    setSelectedId(null);
+    setSavedNote(null);
+  }
 
   function selectSubmission(id: string) {
     setSelectedId(id);
@@ -88,6 +112,31 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
         internalNote: currentNote,
       });
       setSavedNote("Saved.");
+    });
+  }
+
+  function handleArchiveToggle() {
+    if (!selected) return;
+    const archiving = !selected.archivedAt;
+    startTransition(async () => {
+      await archiveVendorSubmission(selected.id, archiving);
+      setSelectedId(null);
+      setSavedNote(archiving ? "Archived." : "Unarchived.");
+    });
+  }
+
+  function handleDelete() {
+    if (!selected) return;
+    if (
+      !confirm(
+        `Permanently delete the submission from ${selected.companyName}? This cannot be undone.`
+      )
+    ) {
+      return;
+    }
+    startTransition(async () => {
+      await deleteVendorSubmission(selected.id);
+      setSelectedId(null);
     });
   }
 
@@ -110,6 +159,30 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
             Admin
           </span>
           <h1 className="text-[26px] font-bold">Vendor submissions</h1>
+        </div>
+        <div className="flex items-center gap-1 rounded-full border border-input-border p-1" role="group" aria-label="View">
+          <button
+            type="button"
+            aria-pressed={view === "active"}
+            onClick={() => selectView("active")}
+            className={
+              "rounded-full px-3.5 py-1.5 text-[13px] font-medium " +
+              (view === "active" ? "bg-primary text-white" : "text-[#424242]")
+            }
+          >
+            Active ({activeCount})
+          </button>
+          <button
+            type="button"
+            aria-pressed={view === "archived"}
+            onClick={() => selectView("archived")}
+            className={
+              "rounded-full px-3.5 py-1.5 text-[13px] font-medium " +
+              (view === "archived" ? "bg-primary text-white" : "text-[#424242]")
+            }
+          >
+            Archived ({archivedCount})
+          </button>
         </div>
       </section>
 
@@ -145,6 +218,11 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
 
       <section className="flex min-h-0 flex-1 flex-col gap-6 px-4 pb-12 pt-5 md:flex-row md:px-16">
         <div className="w-full shrink-0 overflow-hidden rounded bg-surface shadow-card md:w-[420px]">
+          {filtered.length === 0 && (
+            <div className="p-4 text-sm text-text-secondary">
+              No {view} submissions{tab !== "ALL" ? ` in "${STATUS_LABEL[tab]}"` : ""}.
+            </div>
+          )}
           {filtered.map((s) => (
             <button
               key={s.id}
@@ -281,7 +359,7 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={handleSave}
@@ -289,6 +367,22 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
                 className="rounded bg-primary px-6 py-2.5 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
               >
                 {pending ? "Saving…" : "Save"}
+              </button>
+              <button
+                type="button"
+                onClick={handleArchiveToggle}
+                disabled={pending}
+                className="rounded border border-input-border px-5 py-2.5 text-[13px] font-medium text-[#424242] disabled:opacity-60"
+              >
+                {selected.archivedAt ? "Unarchive" : "Archive"}
+              </button>
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={pending}
+                className="rounded border border-[#ffcdd2] px-5 py-2.5 text-[13px] font-medium text-[#c62828] disabled:opacity-60"
+              >
+                Delete
               </button>
               <span role="status" className="text-xs text-text-secondary">
                 {savedNote}

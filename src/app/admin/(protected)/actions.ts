@@ -388,3 +388,14 @@ export async function updateStaffRole(userId: string, roleId: string | null) {
   await prisma.user.update({ where: { id: userId }, data: { roleId } });
   revalidatePath("/admin/staff");
 }
+
+export async function updateStaffName(userId: string, name: string) {
+  await requirePermission("staff", "edit");
+  const trimmed = name.trim();
+  if (!trimmed) {
+    throw new Error("Name is required");
+  }
+
+  await prisma.user.update({ where: { id: userId }, data: { name: trimmed } });
+  revalidatePath("/admin/staff");
+}

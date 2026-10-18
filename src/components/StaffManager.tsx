@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createStaffAccount, updateStaffRole } from "@/app/admin/(protected)/actions";
+import { createStaffAccount, updateStaffName, updateStaffRole } from "@/app/admin/(protected)/actions";
 
 type StaffUser = { id: string; name: string; email: string; roleId: string | null };
 type RoleOption = { id: string; name: string };
@@ -34,6 +34,69 @@ function RoleSelect({
   );
 }
 
+function NameField({ user }: { user: StaffUser }) {
+  const [editing, setEditing] = useState(false);
+  const [name, setName] = useState(user.name);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function save() {
+    const trimmed = name.trim();
+    if (!trimmed || trimmed === user.name) {
+      setName(user.name);
+      setEditing(false);
+      setError(null);
+      return;
+    }
+    setError(null);
+    startTransition(async () => {
+      try {
+        await updateStaffName(user.id, trimmed);
+        setEditing(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to update");
+        setName(user.name);
+      }
+    });
+  }
+
+  if (editing) {
+    return (
+      <div className="flex flex-col gap-1">
+        <input
+          type="text"
+          value={name}
+          autoFocus
+          disabled={pending}
+          onChange={(e) => setName(e.target.value)}
+          onBlur={save}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") save();
+            if (e.key === "Escape") {
+              setName(user.name);
+              setEditing(false);
+              setError(null);
+            }
+          }}
+          className="w-full max-w-[200px] rounded border border-input-border px-2 py-1 text-sm font-medium disabled:opacity-60"
+        />
+        {error && <span className="text-xs text-[#c62828]">{error}</span>}
+      </div>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => setEditing(true)}
+      className="w-fit text-left text-sm font-medium hover:underline"
+      title="Click to edit name"
+    >
+      {name}
+    </button>
+  );
+}
+
 function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOption[] }) {
   const [roleId, setRoleId] = useState(user.roleId);
   const [pending, startTransition] = useTransition();
@@ -58,7 +121,7 @@ function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOpt
   return (
     <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3.5 first:border-t-0">
       <div className="flex flex-col gap-0.5">
-        <span className="text-sm font-medium">{user.name}</span>
+        <NameField user={user} />
         <span className="text-xs text-text-secondary">{user.email}</span>
       </div>
       <div className="flex items-center gap-2.5">

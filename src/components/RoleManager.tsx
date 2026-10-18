@@ -72,7 +72,26 @@ function PermissionGrid({
   );
 }
 
+function ChevronIcon({ collapsed }: { collapsed: boolean }) {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={"transition-transform " + (collapsed ? "-rotate-90" : "")}
+    >
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
 function RoleCard({ role }: { role: Role }) {
+  const [collapsed, setCollapsed] = useState(true);
   const [selected, setSelected] = useState(
     () => new Set(role.permissions.map((p) => grantKey(p.resource, p.action))),
   );
@@ -122,41 +141,53 @@ function RoleCard({ role }: { role: Role }) {
 
   return (
     <div className="flex flex-col gap-3 rounded bg-surface p-6 shadow-card">
-      <div className="flex items-center justify-between">
+      <button
+        type="button"
+        onClick={() => setCollapsed((prev) => !prev)}
+        aria-expanded={!collapsed}
+        className="flex items-center justify-between gap-3 text-left"
+      >
         <div className="flex flex-col gap-0.5">
           <span className="text-base font-medium">{role.name}</span>
           <span className="text-xs text-text-secondary">
             {role.userCount} staff account{role.userCount === 1 ? "" : "s"}
           </span>
         </div>
-      </div>
-
-      <PermissionGrid selected={selected} onToggle={toggle} />
-
-      {error && <span className="text-xs text-[#c62828]">{error}</span>}
-
-      <div className="flex flex-wrap items-center gap-3">
-        <button
-          type="button"
-          onClick={handleSave}
-          disabled={pending}
-          className="rounded bg-primary px-5 py-2 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
-        >
-          {pending ? "Saving…" : "Save"}
-        </button>
-        <button
-          type="button"
-          onClick={handleDelete}
-          disabled={pending || role.userCount > 0}
-          title={role.userCount > 0 ? "Reassign staff off this role before deleting it" : undefined}
-          className="rounded border border-[#ffcdd2] px-5 py-2 text-[13px] font-medium text-[#c62828] disabled:opacity-40"
-        >
-          Delete
-        </button>
-        <span role="status" className="text-xs text-text-secondary">
-          {note}
+        <span className="text-text-secondary">
+          <ChevronIcon collapsed={collapsed} />
         </span>
-      </div>
+      </button>
+
+      {!collapsed && (
+        <>
+          <PermissionGrid selected={selected} onToggle={toggle} />
+
+          {error && <span className="text-xs text-[#c62828]">{error}</span>}
+
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSave}
+              disabled={pending}
+              className="rounded bg-primary px-5 py-2 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
+            >
+              {pending ? "Saving…" : "Save"}
+            </button>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={pending || role.userCount > 0}
+              title={role.userCount > 0 ? "Reassign staff off this role before deleting it" : undefined}
+              className="rounded border border-[#ffcdd2] px-5 py-2 text-[13px] font-medium text-[#c62828] disabled:opacity-40"
+            >
+              Delete
+            </button>
+            <span role="status" className="text-xs text-text-secondary">
+              {note}
+            </span>
+          </div>
+        </>
+      )}
     </div>
   );
 }

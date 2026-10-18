@@ -26,11 +26,13 @@ export function PropertiesExplorer({
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
+  const [onlyAvailable, setOnlyAvailable] = useState(false);
 
   const filtered = useMemo(() => {
     return properties.filter((property) => {
       if (filter === "subsidized" && !property.isSubsidized) return false;
       if (filter === "market-rate" && property.isSubsidized) return false;
+      if (onlyAvailable && statusBySlug[property.slug] !== "AVAILABLE") return false;
 
       if (search.trim()) {
         const q = search.trim().toLowerCase();
@@ -40,7 +42,7 @@ export function PropertiesExplorer({
 
       return true;
     });
-  }, [properties, filter, search]);
+  }, [properties, filter, search, onlyAvailable, statusBySlug]);
 
   return (
     <>
@@ -84,6 +86,25 @@ export function PropertiesExplorer({
             </button>
           );
         })}
+        <span className="h-5 w-px bg-input-border" aria-hidden="true" />
+        <button
+          type="button"
+          aria-pressed={onlyAvailable}
+          onClick={() => setOnlyAvailable((v) => !v)}
+          className={
+            "flex items-center gap-1.5 rounded-full px-[18px] py-2 text-[13px] font-medium " +
+            (onlyAvailable
+              ? "bg-primary-dark text-white"
+              : "border border-input-border bg-surface text-[#424242]")
+          }
+        >
+          {onlyAvailable && (
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          )}
+          Has availability
+        </button>
       </div>
 
       {filtered.length > 0 ? (
@@ -114,6 +135,7 @@ export function PropertiesExplorer({
             onClick={() => {
               setSearch("");
               setFilter("all");
+              setOnlyAvailable(false);
             }}
             className="mt-1 rounded border border-input-border px-5 py-2 text-sm font-medium text-[#424242]"
           >

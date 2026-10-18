@@ -140,6 +140,10 @@ model PropertyContent {
   contactName           String?
   contactPhone          String?
   contactEmail          String?
+  /// Per-property resident portal link (pay rent, etc.) — shown on
+  /// the public /residents page. No static-data equivalent, unlike
+  /// applyUrl.
+  residentPortalUrl     String?
   /// Market-rate properties only — shows a "Join the waitlist" signup
   /// on the public site instead of (well, alongside) the regular
   /// contact form when a unit is WAITLIST/FULL. Off by default.

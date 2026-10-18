@@ -11,11 +11,21 @@ export type PropertyContentFields = {
   contactPhone: string | null;
   contactEmail: string | null;
   waitlistSignupEnabled: boolean;
+  residentPortalUrl: string | null;
 };
 
-export async function getPropertyContent(propertySlug: string): Promise<PropertyContentFields | null> {
-  const row = await prisma.propertyContent.findUnique({ where: { propertySlug } });
-  if (!row) return null;
+function toContentFields(row: {
+  description: string | null;
+  amenities: string[];
+  incomeLimits: unknown;
+  requiredDocuments: string[];
+  applyUrl: string | null;
+  contactName: string | null;
+  contactPhone: string | null;
+  contactEmail: string | null;
+  waitlistSignupEnabled: boolean;
+  residentPortalUrl: string | null;
+}): PropertyContentFields {
   return {
     description: row.description,
     amenities: row.amenities,
@@ -26,7 +36,20 @@ export async function getPropertyContent(propertySlug: string): Promise<Property
     contactPhone: row.contactPhone,
     contactEmail: row.contactEmail,
     waitlistSignupEnabled: row.waitlistSignupEnabled,
+    residentPortalUrl: row.residentPortalUrl,
   };
+}
+
+export async function getPropertyContent(propertySlug: string): Promise<PropertyContentFields | null> {
+  const row = await prisma.propertyContent.findUnique({ where: { propertySlug } });
+  return row ? toContentFields(row) : null;
+}
+
+export async function getAllPropertyContent(): Promise<Record<string, PropertyContentFields>> {
+  const rows = await prisma.propertyContent.findMany();
+  const result: Record<string, PropertyContentFields> = {};
+  for (const row of rows) result[row.propertySlug] = toContentFields(row);
+  return result;
 }
 
 export function mergePropertyContent(
@@ -47,6 +70,7 @@ export function mergePropertyContent(
       // toggle) — off is the only sane default for a property nobody's
       // edited in the admin yet.
       waitlistSignupEnabled: false,
+      residentPortalUrl: null,
     };
   }
   return content;

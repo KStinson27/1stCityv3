@@ -6,6 +6,7 @@ import { Wordmark } from "./Logo";
 
 const NAV_LINKS = [
   { href: "/properties", label: "Properties" },
+  { href: "/residents", label: "Residents" },
   { href: "/vendors", label: "Vendors" },
   { href: "/about", label: "About" },
 ];

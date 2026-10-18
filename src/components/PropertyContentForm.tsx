@@ -15,6 +15,7 @@ type Draft = {
   contactPhone: string;
   contactEmail: string;
   waitlistSignupEnabled: boolean;
+  residentPortalUrl: string;
 };
 
 export function PropertyContentForm({
@@ -185,6 +186,18 @@ export function PropertyContentForm({
             type="text"
             value={draft.contactEmail}
             onChange={(e) => update("contactEmail", e.target.value)}
+            className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Resident portal URL
+          </label>
+          <input
+            type="text"
+            value={draft.residentPortalUrl}
+            onChange={(e) => update("residentPortalUrl", e.target.value)}
+            placeholder="https://..."
             className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
           />
         </div>

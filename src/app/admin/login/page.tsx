@@ -27,10 +27,17 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
-    const { error: signInError } = await authClient.signIn.email({ email, password });
+    const { data, error: signInError } = await authClient.signIn.email({ email, password });
     setSubmitting(false);
     if (signInError) {
       setError(signInError.message ?? "Invalid email or password.");
+      return;
+    }
+    // The two-factor plugin's post-sign-in hook adds `twoFactorRedirect`
+    // to the response at runtime, but doesn't flow into signIn.email's
+    // declared return type — narrow with an `in` check instead of `any`.
+    if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
+      router.push("/admin/verify-2fa");
       return;
     }
     router.push("/admin");

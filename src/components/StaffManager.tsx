@@ -3,12 +3,19 @@
 import { useState, useTransition } from "react";
 import {
   createStaffAccount,
+  resetStaffTwoFactor,
   sendStaffPasswordReset,
   updateStaffName,
   updateStaffRole,
 } from "@/app/admin/(protected)/actions";
 
-type StaffUser = { id: string; name: string; email: string; roleId: string | null };
+type StaffUser = {
+  id: string;
+  name: string;
+  email: string;
+  roleId: string | null;
+  twoFactorEnabled: boolean;
+};
 type RoleOption = { id: string; name: string };
 
 function RoleSelect({
@@ -141,6 +148,48 @@ function ResetPasswordButton({ userId }: { userId: string }) {
   );
 }
 
+function ResetTwoFactorButton({ userId, userName }: { userId: string; userName: string }) {
+  const [pending, startTransition] = useTransition();
+  const [note, setNote] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleClick() {
+    if (!confirm(`Turn off two-factor authentication for ${userName}? Only do this if they've lost access to their authenticator app and backup codes.`)) {
+      return;
+    }
+    setNote(null);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await resetStaffTwoFactor(userId);
+        setNote("Two-factor reset.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to reset two-factor");
+      }
+    });
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={handleClick}
+        disabled={pending}
+        className="rounded border border-input-border px-3 py-1.5 text-xs font-medium text-primary-dark disabled:opacity-60"
+      >
+        {pending ? "Resetting…" : "Reset 2FA"}
+      </button>
+      {error ? (
+        <span className="text-xs text-[#c62828]">{error}</span>
+      ) : (
+        <span role="status" className="text-xs text-text-secondary">
+          {note}
+        </span>
+      )}
+    </div>
+  );
+}
+
 function StaffRow({
   user,
   roleOptions,
@@ -186,6 +235,7 @@ function StaffRow({
           </span>
         )}
         {canResetPassword && <ResetPasswordButton userId={user.id} />}
+        {user.twoFactorEnabled && <ResetTwoFactorButton userId={user.id} userName={user.name} />}
       </div>
     </div>
   );

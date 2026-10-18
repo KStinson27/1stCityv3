@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id            String    @id
-  name          String
-  email         String
-  emailVerified Boolean   @default(false)
-  image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  sessions      Session[]
-  accounts      Account[]
-  roleId        String?
-  role          Role?     @relation(fields: [roleId], references: [id])
+  id               String     @id
+  name             String
+  email            String
+  emailVerified    Boolean    @default(false)
+  image            String?
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  sessions         Session[]
+  accounts         Account[]
+  roleId           String?
+  role             Role?      @relation(fields: [roleId], references: [id])
+  twoFactorEnabled Boolean    @default(false)
+  twoFactor        TwoFactor?
 
   @@unique([email])
   @@map("user")
@@ -97,6 +99,23 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+/// Per-user TOTP enrollment for the two-factor plugin (opt-in — see
+/// src/lib/auth.ts). One row per enrolled user; `verified` is false
+/// until the enrollment's first code is confirmed.
+model TwoFactor {
+  id                      String    @id @default(cuid())
+  secret                  String
+  backupCodes             String
+  userId                  String
+  user                    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  verified                Boolean   @default(true)
+  failedVerificationCount Int       @default(0)
+  lockedUntil             DateTime?
+
+  @@unique([userId])
+  @@map("two_factor")
 }
 
 enum SubmissionStatus {

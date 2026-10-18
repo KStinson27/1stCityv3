@@ -28,6 +28,7 @@ const LINKS: { href: string; label: string; visible: (perms: Set<string>) => boo
     visible: (perms) => perms.has("documents:view"),
   },
   { href: "/admin/staff", label: "Staff & Roles", visible: (perms) => perms.has("staff:view") },
+  { href: "/admin/security", label: "Security", visible: () => true },
 ];
 
 export function AdminNav({ permissions }: { permissions: string[] }) {

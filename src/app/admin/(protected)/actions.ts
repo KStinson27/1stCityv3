@@ -417,3 +417,19 @@ export async function sendStaffPasswordReset(userId: string) {
     },
   });
 }
+
+/**
+ * Recovery path for a staff member who's lost both their authenticator
+ * device and backup codes — Better Auth's own disableTwoFactor endpoint
+ * only acts on the caller's own session, so this does the same thing
+ * directly for another user's account.
+ */
+export async function resetStaffTwoFactor(userId: string) {
+  await requirePermission("staff", "edit");
+
+  await prisma.$transaction([
+    prisma.user.update({ where: { id: userId }, data: { twoFactorEnabled: false } }),
+    prisma.twoFactor.deleteMany({ where: { userId } }),
+  ]);
+  revalidatePath("/admin/staff");
+}

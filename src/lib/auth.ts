@@ -1,5 +1,6 @@
 import { betterAuth } from "better-auth";
 import { nextCookies } from "better-auth/next-js";
+import { twoFactor } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { sendEmail } from "./email";
@@ -38,5 +39,8 @@ export const auth = betterAuth({
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
   },
-  plugins: [nextCookies()],
+  // Opt-in MFA: each staff member can enable it for their own account
+  // from /admin/security — nobody is required to. nextCookies() must
+  // stay last (Better Auth's own requirement).
+  plugins: [twoFactor({ issuer: "1st City LLC Staff Portal" }), nextCookies()],
 });

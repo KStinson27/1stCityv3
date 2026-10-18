@@ -19,7 +19,7 @@ export default async function AdminStaffPage() {
     }),
     prisma.user.findMany({
       orderBy: { name: "asc" },
-      select: { id: true, name: true, email: true, roleId: true },
+      select: { id: true, name: true, email: true, roleId: true, twoFactorEnabled: true },
     }),
   ]);
 
@@ -38,7 +38,13 @@ export default async function AdminStaffPage() {
             Staff accounts
           </h2>
           <StaffManager
-            users={users.map((u) => ({ id: u.id, name: u.name, email: u.email, roleId: u.roleId }))}
+            users={users.map((u) => ({
+              id: u.id,
+              name: u.name,
+              email: u.email,
+              roleId: u.roleId,
+              twoFactorEnabled: u.twoFactorEnabled,
+            }))}
             roleOptions={roleOptions}
             canResetPassword={canResetPassword}
           />

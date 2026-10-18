@@ -189,6 +189,20 @@ This comfortably fits inside "some budget is fine." If traffic or the portfolio 
 3. **Phase 3 — Polish ✅ done**: Accessibility pass (skip links, form label/error associations, focus states, tab/filter semantics). SEO basics: `sitemap.xml`, `robots.txt` (with `/admin` disallowed and noindexed), `metadataBase` + Open Graph/Twitter defaults, a generated share image. Fair Housing/EHO compliance copy in place (About page + every property/footer callout); leadership bios and the mission blurb stay intentionally brief until real copy is provided. Standard Privacy Policy/Terms of Use content added to `/privacy` and `/terms` — boilerplate, flagged in-code as not yet attorney-reviewed. Real logo live everywhere (navbar, footer, admin header, login) — see `src/components/Logo.tsx`; navbar/admin header recolored to white since the logo's black text needs a light background. Property photos live for all 8 properties (`Property.photos[]` in `src/data/properties.ts`, served from `public/properties/<slug>/` via `next/image`) — 6 have just a main exterior shot, 2 (Comstock Tower, Marketplace Court) have galleries. (Comstock Village was removed from the site — no longer managed by 1st City LLC.) Still open, not blocking launch: per-property "Apply Online" links into RealPage (§6) once that integration is set up; more photos for the 6 single-photo properties whenever available.
 4. **Phase 4 — Launch (in progress)**: Site is deployed to Vercel. `npm run build` now runs `prisma migrate deploy` automatically before `next build`, so pushing `DATABASE_URL` to a fresh database (e.g. Neon) and redeploying is enough to set up its schema — no manual migration step needed. Still needed: a real Neon `DATABASE_URL` and a production `BETTER_AUTH_SECRET`/`BETTER_AUTH_URL` set in Vercel's environment variables (see README/chat for the generated secret and exact steps), then running `npm run db:seed` once against that database to create the first staff login. Custom domain, monitoring, and Dependabot/Renovate still open.
 
-## 10. Mockup
+## 10. Pending setup — your action items
+
+Things only you can do (account access Claude doesn't have). Nothing else is
+blocked on these — the app degrades gracefully without them, per the
+relevant sections above.
+
+- [ ] **SendGrid** (email delivery — see §4 "Transactional email", `src/lib/email.ts`):
+  - [ ] Sign up at [sendgrid.com](https://sendgrid.com) (free tier, 100 emails/day)
+  - [ ] Settings → Sender Authentication → Verify a Single Sender → `krystal.stinson@1stcityllc.com` → confirm via the email it sends
+  - [ ] Settings → API Keys → Create API Key, restricted to "Mail Send" access
+  - [ ] Add `SENDGRID_API_KEY` to `.env.local` (local dev)
+  - [ ] Add `SENDGRID_API_KEY` to Vercel → Project → Settings → Environment Variables (Production, and Preview if wanted) → redeploy
+- [ ] **Custom domain** (Phase 4): point `1stcityllc.net` at Vercel, then set `NEXT_PUBLIC_SITE_URL=https://1stcityllc.net` in Vercel's environment variables.
+
+## 11. Mockup
 
 A clickable HTML mockup has been published separately — see the link shared alongside this plan. It now covers: Home, Properties (all 9, correctly badged subsidized/market-rate), Property Detail (with an eligibility/income-limits/required-documents section and an "Apply Online" flow into RealPage), Vendors, and About (leadership bios, fair housing & reasonable-accommodation statement), each with both a desktop and a mobile layout.

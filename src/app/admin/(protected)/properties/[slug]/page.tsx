@@ -81,6 +81,7 @@ export default async function AdminPropertyPage({
           <PropertyContentForm
             propertySlug={property.slug}
             showIncomeLimits={property.isSubsidized}
+            showWaitlistToggle={!property.isSubsidized}
             initial={{
               description: content.description ?? "",
               amenities: content.amenities,
@@ -93,6 +94,7 @@ export default async function AdminPropertyPage({
               contactName: content.contactName ?? "",
               contactPhone: content.contactPhone ?? "",
               contactEmail: content.contactEmail ?? "",
+              waitlistSignupEnabled: content.waitlistSignupEnabled,
             }}
           />
         </div>

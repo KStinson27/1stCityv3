@@ -79,6 +79,22 @@ export const propertyContactApiSchema = propertyContactSchema.extend({
   recaptchaToken: z.string().trim().optional(),
 });
 
+// Lighter than propertyContactSchema — no message field, kept
+// low-friction since this is a quick "notify me" signup, not a
+// detailed inquiry.
+export const waitlistSignupSchema = z.object({
+  name: z.string().trim().min(1, "Your name is required"),
+  email: z.string().trim().min(1, "Email is required").email("Enter a valid email address"),
+  phone: phoneSchema,
+  website: honeypotSchema,
+});
+
+export type WaitlistSignupFormValues = z.infer<typeof waitlistSignupSchema>;
+
+export const waitlistSignupApiSchema = waitlistSignupSchema.extend({
+  recaptchaToken: z.string().trim().optional(),
+});
+
 export const SERVICE_TYPES = [
   "Landscaping",
   "HVAC",

@@ -10,6 +10,7 @@ export type PropertyContentFields = {
   contactName: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  waitlistSignupEnabled: boolean;
 };
 
 export async function getPropertyContent(propertySlug: string): Promise<PropertyContentFields | null> {
@@ -24,6 +25,7 @@ export async function getPropertyContent(propertySlug: string): Promise<Property
     contactName: row.contactName,
     contactPhone: row.contactPhone,
     contactEmail: row.contactEmail,
+    waitlistSignupEnabled: row.waitlistSignupEnabled,
   };
 }
 
@@ -41,6 +43,10 @@ export function mergePropertyContent(
       contactName: property.contactName,
       contactPhone: property.contactPhone,
       contactEmail: property.contactEmail,
+      // No static-data equivalent (this is a brand-new, admin-only
+      // toggle) — off is the only sane default for a property nobody's
+      // edited in the admin yet.
+      waitlistSignupEnabled: false,
     };
   }
   return content;

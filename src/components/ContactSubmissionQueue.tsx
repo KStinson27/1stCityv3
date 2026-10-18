@@ -19,6 +19,7 @@ type Submission = {
   preferredContact: string | null;
   status: SubmissionStatus;
   internalNote: string | null;
+  isWaitlistSignup: boolean;
   archivedAt: Date | null;
   createdAt: Date;
 };
@@ -64,6 +65,7 @@ export function ContactSubmissionQueue({
 }) {
   const [view, setView] = useState<"active" | "archived">("active");
   const [tab, setTab] = useState<"ALL" | SubmissionStatus>("ALL");
+  const [waitlistOnly, setWaitlistOnly] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(submissions[0]?.id ?? null);
   const [pending, startTransition] = useTransition();
   const [savedNote, setSavedNote] = useState<string | null>(null);
@@ -75,8 +77,11 @@ export function ContactSubmissionQueue({
   const archivedCount = submissions.length - activeCount;
 
   const viewSubmissions = useMemo(
-    () => submissions.filter((s) => (view === "archived" ? s.archivedAt : !s.archivedAt)),
-    [submissions, view]
+    () =>
+      submissions
+        .filter((s) => (view === "archived" ? s.archivedAt : !s.archivedAt))
+        .filter((s) => !waitlistOnly || s.isWaitlistSignup),
+    [submissions, view, waitlistOnly]
   );
 
   const counts = useMemo(() => {
@@ -220,6 +225,17 @@ export function ContactSubmissionQueue({
             </button>
           );
         })}
+        <label className="ml-auto flex items-center gap-2 text-[13px] text-[#424242]">
+          <input
+            type="checkbox"
+            checked={waitlistOnly}
+            onChange={(e) => {
+              setWaitlistOnly(e.target.checked);
+              setSelectedId(null);
+            }}
+          />
+          Waitlist signups only
+        </label>
       </section>
 
       <section className="flex min-h-0 flex-1 flex-col gap-6 px-4 pb-12 pt-5 md:flex-row md:px-16">
@@ -253,8 +269,13 @@ export function ContactSubmissionQueue({
                   {STATUS_LABEL[s.status]}
                 </span>
               </div>
-              <span className="text-xs text-text-secondary">
+              <span className="flex items-center gap-1.5 text-xs text-text-secondary">
                 {s.propertyName ?? "General inquiry"} · {dateFormatter.format(s.createdAt)}
+                {s.isWaitlistSignup && (
+                  <span className="rounded-full bg-[#FFF3E0] px-2 py-0.5 text-[10px] font-bold uppercase text-[#E65100]">
+                    Waitlist
+                  </span>
+                )}
               </span>
             </button>
           ))}
@@ -269,14 +290,21 @@ export function ContactSubmissionQueue({
                   Submitted {dateFormatter.format(selected.createdAt)}
                 </span>
               </div>
-              <span
-                className={
-                  "rounded-full px-3 py-1 text-xs font-bold uppercase " +
-                  STATUS_CHIP[selected.status]
-                }
-              >
-                {STATUS_LABEL[selected.status]}
-              </span>
+              <div className="flex items-center gap-2">
+                {selected.isWaitlistSignup && (
+                  <span className="rounded-full bg-[#FFF3E0] px-3 py-1 text-xs font-bold uppercase text-[#E65100]">
+                    Waitlist
+                  </span>
+                )}
+                <span
+                  className={
+                    "rounded-full px-3 py-1 text-xs font-bold uppercase " +
+                    STATUS_CHIP[selected.status]
+                  }
+                >
+                  {STATUS_LABEL[selected.status]}
+                </span>
+              </div>
             </div>
 
             <div className="h-px bg-border" />

@@ -131,16 +131,20 @@ enum SubmissionStatus {
 /// src/data/properties.ts values) so that clearing a field in the admin
 /// UI actually clears it instead of resurrecting old code-managed copy.
 model PropertyContent {
-  propertySlug      String   @id
-  description       String?
-  amenities         String[]
-  incomeLimits      Json?
-  requiredDocuments String[]
-  applyUrl          String?
-  contactName       String?
-  contactPhone      String?
-  contactEmail      String?
-  updatedAt         DateTime @updatedAt
+  propertySlug          String   @id
+  description           String?
+  amenities             String[]
+  incomeLimits          Json?
+  requiredDocuments     String[]
+  applyUrl              String?
+  contactName           String?
+  contactPhone          String?
+  contactEmail          String?
+  /// Market-rate properties only — shows a "Join the waitlist" signup
+  /// on the public site instead of (well, alongside) the regular
+  /// contact form when a unit is WAITLIST/FULL. Off by default.
+  waitlistSignupEnabled Boolean  @default(false)
+  updatedAt             DateTime @updatedAt
 
   @@map("property_content")
 }
@@ -230,6 +234,12 @@ model ContactSubmission {
   preferredContact  String?
   status            SubmissionStatus @default(NEW)
   internalNote      String?
+  /// True for a "notify me" waitlist signup (see the waitlist route
+  /// and PropertyContent.waitlistSignupEnabled) rather than a regular
+  /// inquiry submitted through a contact form. Always has propertySlug
+  /// set, so it's covered by the same property_contact_submissions
+  /// permission as any other per-property submission.
+  isWaitlistSignup  Boolean          @default(false)
   archivedAt        DateTime?
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt

@@ -116,6 +116,7 @@ export async function updatePropertyContent(
     contactName: string;
     contactPhone: string;
     contactEmail: string;
+    waitlistSignupEnabled: boolean;
   },
 ) {
   await requirePermission("properties", "edit");
@@ -141,6 +142,7 @@ export async function updatePropertyContent(
       contactName: data.contactName.trim() || null,
       contactPhone: data.contactPhone.trim() || null,
       contactEmail: data.contactEmail.trim() || null,
+      waitlistSignupEnabled: data.waitlistSignupEnabled,
     },
     update: {
       description: data.description.trim() || null,
@@ -151,6 +153,7 @@ export async function updatePropertyContent(
       contactName: data.contactName.trim() || null,
       contactPhone: data.contactPhone.trim() || null,
       contactEmail: data.contactEmail.trim() || null,
+      waitlistSignupEnabled: data.waitlistSignupEnabled,
     },
   });
 

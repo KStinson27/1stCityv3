@@ -14,16 +14,19 @@ type Draft = {
   contactName: string;
   contactPhone: string;
   contactEmail: string;
+  waitlistSignupEnabled: boolean;
 };
 
 export function PropertyContentForm({
   propertySlug,
   initial,
   showIncomeLimits,
+  showWaitlistToggle,
 }: {
   propertySlug: string;
   initial: Draft;
   showIncomeLimits: boolean;
+  showWaitlistToggle: boolean;
 }) {
   const [draft, setDraft] = useState<Draft>(initial);
   const [pending, startTransition] = useTransition();
@@ -186,6 +189,25 @@ export function PropertyContentForm({
           />
         </div>
       </div>
+
+      {showWaitlistToggle && (
+        <label className="flex items-start gap-2.5 rounded border border-input-border p-3.5 text-sm text-[#424242]">
+          <input
+            type="checkbox"
+            checked={draft.waitlistSignupEnabled}
+            onChange={(e) => update("waitlistSignupEnabled", e.target.checked)}
+            className="mt-0.5"
+          />
+          <span>
+            <span className="font-medium">Enable waitlist signup</span>
+            <br />
+            <span className="text-xs text-text-secondary">
+              Shows a &quot;Join the waitlist&quot; option on the public site when a unit is
+              waitlisted or fully leased, instead of just the contact form.
+            </span>
+          </span>
+        </label>
+      )}
 
       <div className="flex items-center gap-3">
         <button

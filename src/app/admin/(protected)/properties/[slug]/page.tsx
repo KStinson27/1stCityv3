@@ -11,6 +11,7 @@ import {
 import { UnitAvailabilityForm } from "@/components/UnitAvailabilityForm";
 import { PropertyContentForm } from "@/components/PropertyContentForm";
 import { PropertyPhotoManager } from "@/components/PropertyPhotoManager";
+import { requirePagePermission } from "@/lib/permissions";
 
 export const dynamic = "force-dynamic";
 
@@ -29,6 +30,7 @@ export default async function AdminPropertyPage({
 }: {
   params: Promise<{ slug: string }>;
 }) {
+  await requirePagePermission("properties", "view");
   const { slug } = await params;
   const property = getPropertyBySlug(slug);
   if (!property) notFound();

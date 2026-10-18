@@ -3,15 +3,34 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { properties } from "@/data/properties";
 import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
+import { hasPermission, requireSessionForPage } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "Dashboard" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminDashboardPage() {
+  const { permissions } = await requireSessionForPage();
+
+  const canViewVendor = hasPermission(permissions, "vendor_submissions", "view");
+  const canViewGeneral = hasPermission(permissions, "general_contact_submissions", "view");
+  const canViewProperty = hasPermission(permissions, "property_contact_submissions", "view");
+  const canViewProperties = hasPermission(permissions, "properties", "view");
+
   const [newVendorCount, newContactCount, overlayByProperty] = await Promise.all([
-    prisma.vendorSubmission.count({ where: { status: "NEW" } }),
-    prisma.contactSubmission.count({ where: { status: "NEW" } }),
-    getUnitAvailabilityForAllProperties(),
+    canViewVendor ? prisma.vendorSubmission.count({ where: { status: "NEW" } }) : 0,
+    canViewGeneral || canViewProperty
+      ? prisma.contactSubmission.count({
+          where: {
+            status: "NEW",
+            ...(canViewGeneral && canViewProperty
+              ? {}
+              : { propertySlug: canViewProperty ? { not: null } : null }),
+          },
+        })
+      : 0,
+    canViewProperties
+      ? getUnitAvailabilityForAllProperties()
+      : Promise.resolve({} as Awaited<ReturnType<typeof getUnitAvailabilityForAllProperties>>),
   ]);
 
   const propertiesNeedingAvailability = properties.filter(
@@ -20,25 +39,36 @@ export default async function AdminDashboardPage() {
   ).length;
 
   const cards = [
-    {
+    canViewVendor && {
       href: "/admin/vendor-submissions",
       label: "New vendor submissions",
       value: newVendorCount,
       icon: <WrenchIcon />,
     },
-    {
+    (canViewGeneral || canViewProperty) && {
       href: "/admin/contact-submissions",
       label: "New contact submissions",
       value: newContactCount,
       icon: <MailIcon />,
     },
-    {
+    canViewProperties && {
       href: "/admin/properties",
       label: "Properties missing availability",
       value: propertiesNeedingAvailability,
       icon: <BuildingIcon />,
     },
-  ];
+  ].filter(Boolean) as { href: string; label: string; value: number; icon: React.ReactNode }[];
+
+  if (cards.length === 0) {
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-2 px-4 py-24 text-center">
+        <h1 className="text-xl font-medium">No access yet</h1>
+        <p className="text-sm text-text-secondary">
+          Your account isn&apos;t assigned any admin sections yet — contact an administrator.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-6 p-4 md:p-16">

@@ -52,7 +52,17 @@ const dateFormatter = new Intl.DateTimeFormat("en-US", {
   year: "numeric",
 });
 
-export function AdminQueue({ submissions }: { submissions: Submission[] }) {
+export function AdminQueue({
+  submissions,
+  canEdit,
+  canArchive,
+  canDelete,
+}: {
+  submissions: Submission[];
+  canEdit: boolean;
+  canArchive: boolean;
+  canDelete: boolean;
+}) {
   const [view, setView] = useState<"active" | "archived">("active");
   const [tab, setTab] = useState<"ALL" | SubmissionStatus>("ALL");
   const [selectedId, setSelectedId] = useState<string | null>(submissions[0]?.id ?? null);
@@ -332,7 +342,8 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
                 id="submission-status"
                 value={currentStatus}
                 onChange={(e) => setDraftStatus(e.target.value as SubmissionStatus)}
-                className="w-full max-w-[260px] rounded border border-input-border px-3 py-2.5 text-sm"
+                disabled={!canEdit}
+                className="w-full max-w-[260px] rounded border border-input-border px-3 py-2.5 text-sm disabled:bg-background disabled:opacity-70"
               >
                 {(Object.keys(STATUS_LABEL) as SubmissionStatus[]).map((s) => (
                   <option key={s} value={s}>
@@ -354,36 +365,43 @@ export function AdminQueue({ submissions }: { submissions: Submission[] }) {
                 value={currentNote}
                 onChange={(e) => setDraftNote(e.target.value)}
                 rows={3}
+                disabled={!canEdit}
                 placeholder="Add a note for your team — not visible to the vendor..."
-                className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
+                className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm disabled:bg-background disabled:opacity-70"
               />
             </div>
 
             <div className="flex flex-wrap items-center gap-3">
-              <button
-                type="button"
-                onClick={handleSave}
-                disabled={pending}
-                className="rounded bg-primary px-6 py-2.5 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
-              >
-                {pending ? "Saving…" : "Save"}
-              </button>
-              <button
-                type="button"
-                onClick={handleArchiveToggle}
-                disabled={pending}
-                className="rounded border border-input-border px-5 py-2.5 text-[13px] font-medium text-[#424242] disabled:opacity-60"
-              >
-                {selected.archivedAt ? "Unarchive" : "Archive"}
-              </button>
-              <button
-                type="button"
-                onClick={handleDelete}
-                disabled={pending}
-                className="rounded border border-[#ffcdd2] px-5 py-2.5 text-[13px] font-medium text-[#c62828] disabled:opacity-60"
-              >
-                Delete
-              </button>
+              {canEdit && (
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={pending}
+                  className="rounded bg-primary px-6 py-2.5 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
+                >
+                  {pending ? "Saving…" : "Save"}
+                </button>
+              )}
+              {canArchive && (
+                <button
+                  type="button"
+                  onClick={handleArchiveToggle}
+                  disabled={pending}
+                  className="rounded border border-input-border px-5 py-2.5 text-[13px] font-medium text-[#424242] disabled:opacity-60"
+                >
+                  {selected.archivedAt ? "Unarchive" : "Archive"}
+                </button>
+              )}
+              {canDelete && (
+                <button
+                  type="button"
+                  onClick={handleDelete}
+                  disabled={pending}
+                  className="rounded border border-[#ffcdd2] px-5 py-2.5 text-[13px] font-medium text-[#c62828] disabled:opacity-60"
+                >
+                  Delete
+                </button>
+              )}
               <span role="status" className="text-xs text-text-secondary">
                 {savedNote}
               </span>

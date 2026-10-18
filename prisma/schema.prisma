@@ -17,9 +17,38 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+  roleId        String?
+  role          Role?     @relation(fields: [roleId], references: [id])
 
   @@unique([email])
   @@map("user")
+}
+
+/// A staff access-control role. Permissions are stored as data
+/// (RolePermission rows), not defined in code, so staff can create and
+/// edit roles from /admin/staff without a deploy.
+model Role {
+  id          String           @id @default(cuid())
+  name        String           @unique
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  permissions RolePermission[]
+  users       User[]
+
+  @@map("role")
+}
+
+/// One (resource, action) grant for a Role — e.g. ("vendor_submissions",
+/// "archive"). See src/lib/permissions.ts for the resource/action vocabulary.
+model RolePermission {
+  id       String @id @default(cuid())
+  roleId   String
+  role     Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  resource String
+  action   String
+
+  @@unique([roleId, resource, action])
+  @@map("role_permission")
 }
 
 model Session {

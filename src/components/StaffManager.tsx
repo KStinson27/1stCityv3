@@ -1,0 +1,215 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { createStaffAccount, updateStaffRole } from "@/app/admin/(protected)/actions";
+
+type StaffUser = { id: string; name: string; email: string; roleId: string | null };
+type RoleOption = { id: string; name: string };
+
+function RoleSelect({
+  value,
+  roleOptions,
+  onChange,
+  disabled,
+}: {
+  value: string | null;
+  roleOptions: RoleOption[];
+  onChange: (roleId: string | null) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <select
+      value={value ?? ""}
+      disabled={disabled}
+      onChange={(e) => onChange(e.target.value || null)}
+      className="w-full max-w-[220px] rounded border border-input-border px-3 py-2 text-sm disabled:opacity-60"
+    >
+      <option value="">No role (no access)</option>
+      {roleOptions.map((r) => (
+        <option key={r.id} value={r.id}>
+          {r.name}
+        </option>
+      ))}
+    </select>
+  );
+}
+
+function StaffRow({ user, roleOptions }: { user: StaffUser; roleOptions: RoleOption[] }) {
+  const [roleId, setRoleId] = useState(user.roleId);
+  const [pending, startTransition] = useTransition();
+  const [note, setNote] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  function handleChange(next: string | null) {
+    setRoleId(next);
+    setNote(null);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await updateStaffRole(user.id, next);
+        setNote("Saved.");
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to update");
+        setRoleId(user.roleId);
+      }
+    });
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-4 py-3.5 first:border-t-0">
+      <div className="flex flex-col gap-0.5">
+        <span className="text-sm font-medium">{user.name}</span>
+        <span className="text-xs text-text-secondary">{user.email}</span>
+      </div>
+      <div className="flex items-center gap-2.5">
+        <RoleSelect value={roleId} roleOptions={roleOptions} onChange={handleChange} disabled={pending} />
+        {error ? (
+          <span className="text-xs text-[#c62828]">{error}</span>
+        ) : (
+          <span role="status" className="text-xs text-text-secondary">
+            {note}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function NewStaffForm({ roleOptions }: { roleOptions: RoleOption[] }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [roleId, setRoleId] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
+
+  function handleCreate() {
+    setError(null);
+    startTransition(async () => {
+      try {
+        await createStaffAccount({ name, email, password, roleId });
+        setName("");
+        setEmail("");
+        setPassword("");
+        setRoleId(null);
+        setOpen(false);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to create account");
+      }
+    });
+  }
+
+  if (!open) {
+    return (
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="w-fit rounded border border-input-border px-4 py-2 text-sm font-medium text-primary-dark"
+      >
+        + New staff account
+      </button>
+    );
+  }
+
+  return (
+    <div className="flex flex-col gap-3 rounded bg-surface p-6 shadow-card">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="new-staff-name" className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Name
+          </label>
+          <input
+            id="new-staff-name"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="new-staff-email" className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Email
+          </label>
+          <input
+            id="new-staff-email"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="new-staff-password" className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Temporary password
+          </label>
+          <input
+            id="new-staff-password"
+            type="text"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="At least 8 characters"
+            className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
+          />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <label htmlFor="new-staff-role" className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Role
+          </label>
+          <select
+            id="new-staff-role"
+            value={roleId ?? ""}
+            onChange={(e) => setRoleId(e.target.value || null)}
+            className="w-full rounded border border-input-border px-3 py-2.5 text-sm"
+          >
+            <option value="">No role (no access)</option>
+            {roleOptions.map((r) => (
+              <option key={r.id} value={r.id}>
+                {r.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      {error && <span className="text-xs text-[#c62828]">{error}</span>}
+
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={handleCreate}
+          disabled={pending}
+          className="rounded bg-primary px-5 py-2 text-[13px] font-medium uppercase tracking-wide text-white shadow-button disabled:opacity-60"
+        >
+          {pending ? "Creating…" : "Create account"}
+        </button>
+        <button
+          type="button"
+          onClick={() => setOpen(false)}
+          className="rounded border border-input-border px-5 py-2 text-[13px] font-medium text-[#424242]"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  );
+}
+
+export function StaffManager({
+  users,
+  roleOptions,
+}: {
+  users: StaffUser[];
+  roleOptions: RoleOption[];
+}) {
+  return (
+    <div className="flex flex-col gap-4">
+      <div className="overflow-hidden rounded bg-surface shadow-card">
+        {users.map((user) => (
+          <StaffRow key={user.id} user={user} roleOptions={roleOptions} />
+        ))}
+      </div>
+      <NewStaffForm roleOptions={roleOptions} />
+    </div>
+  );
+}

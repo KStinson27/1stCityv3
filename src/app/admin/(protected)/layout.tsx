@@ -1,18 +1,15 @@
-import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import Link from "next/link";
-import { auth } from "@/lib/auth";
 import { Wordmark } from "@/components/Logo";
 import { AdminSignOutButton } from "@/components/AdminSignOutButton";
 import { AdminNav } from "@/components/AdminNav";
+import { requireSessionForPage } from "@/lib/permissions";
 
 export default async function AdminProtectedLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) redirect("/admin/login");
+  const { session, permissions } = await requireSessionForPage();
 
   return (
     <>
@@ -38,7 +35,7 @@ export default async function AdminProtectedLayout({
           <AdminSignOutButton />
         </div>
       </header>
-      <AdminNav />
+      <AdminNav permissions={[...permissions]} />
       <main id="main-content" className="flex flex-1 flex-col">
         {children}
       </main>

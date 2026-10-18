@@ -1,10 +1,9 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { properties } from "@/data/properties";
+import { requirePermission } from "@/lib/permissions";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB, matches the other upload routes
 
@@ -14,9 +13,10 @@ const MAX_SIZE = 10 * 1024 * 1024; // 10MB, matches the other upload routes
  * rather than a property slug — see SiteDocument.
  */
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  try {
+    await requirePermission("documents", "edit");
+  } catch {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

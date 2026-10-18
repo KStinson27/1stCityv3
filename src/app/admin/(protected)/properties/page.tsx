@@ -6,11 +6,13 @@ import {
   describeStatus,
   getUnitAvailabilityForAllProperties,
 } from "@/lib/unitAvailability";
+import { requirePagePermission } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "Properties" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPropertiesPage() {
+  await requirePagePermission("properties", "view");
   const overlayByProperty = await getUnitAvailabilityForAllProperties();
 
   return (

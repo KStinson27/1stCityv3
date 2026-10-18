@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { getSiteDocument, RENTAL_APPLICATION_KEY } from "@/lib/siteDocument";
 import { DocumentUploader } from "@/components/DocumentUploader";
+import { requirePagePermission } from "@/lib/permissions";
 
 export const metadata: Metadata = { title: "Documents" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminDocumentsPage() {
+  await requirePagePermission("documents", "view");
   const rentalApplication = await getSiteDocument(RENTAL_APPLICATION_KEY);
 
   return (

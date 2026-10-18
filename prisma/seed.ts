@@ -27,6 +27,7 @@ config({ path: ".env.local" });
 async function main() {
   const { hashPassword } = await import("better-auth/crypto");
   const { prisma } = await import("../src/lib/prisma");
+  const { RESOURCES, RESOURCE_ACTIONS } = await import("../src/lib/permissionTypes");
 
   const email = process.env.ADMIN_SEED_EMAIL ?? "admin@1stcityllc.example";
   const password = process.env.ADMIN_SEED_PASSWORD ?? "dev-only-password-123";
@@ -39,12 +40,29 @@ async function main() {
     return;
   }
 
+  // Full-access bootstrap role, same one the migration seeds in
+  // production — reused here so a seeded account always has somewhere
+  // to start, matching whichever database this runs against.
+  const ownerRole = await prisma.role.upsert({
+    where: { name: "Owner" },
+    create: {
+      name: "Owner",
+      permissions: {
+        create: RESOURCES.flatMap((resource) =>
+          RESOURCE_ACTIONS[resource].map((action) => ({ resource, action })),
+        ),
+      },
+    },
+    update: {},
+  });
+
   const user = await prisma.user.create({
     data: {
       id: crypto.randomUUID(),
       name,
       email,
       emailVerified: true,
+      roleId: ownerRole.id,
     },
   });
 

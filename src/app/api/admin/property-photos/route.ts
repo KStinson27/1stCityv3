@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server";
-import { headers } from "next/headers";
 import { put } from "@vercel/blob";
 import { revalidatePath } from "next/cache";
-import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { requirePermission } from "@/lib/permissions";
 
 const MAX_SIZE = 10 * 1024 * 1024; // 10MB, matches the vendor-upload limit
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
@@ -14,9 +13,10 @@ const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
  * are an authenticated admin action, not a public form submission.
  */
 export async function POST(request: Request) {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session) {
-    return NextResponse.json({ error: "Not signed in" }, { status: 401 });
+  try {
+    await requirePermission("properties", "edit");
+  } catch {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
   }
 
   if (!process.env.BLOB_READ_WRITE_TOKEN) {

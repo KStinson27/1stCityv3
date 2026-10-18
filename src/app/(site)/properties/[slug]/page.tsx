@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { getPropertyBySlug, properties } from "@/data/properties";
+import { getPropertyBySlug } from "@/data/properties";
 import { PropertyGallery } from "@/components/PropertyGallery";
 import { EqualHousingLogo } from "@/components/EqualHousingLogo";
 import {
@@ -18,9 +18,12 @@ import {
 } from "@/lib/propertyContent";
 import { getSiteDocument, RENTAL_APPLICATION_KEY } from "@/lib/siteDocument";
 
-export function generateStaticParams() {
-  return properties.map((property) => ({ slug: property.slug }));
-}
+// Admin-editable content (description, contact info, unit availability,
+// the waitlist toggle) needs to show up immediately after a save — not
+// wait on on-demand ISR revalidation, which wasn't reliably taking
+// effect. Matches /properties and every /admin page, which are already
+// force-dynamic.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

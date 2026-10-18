@@ -2,12 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { WaitlistSignupForm } from "@/components/WaitlistSignupForm";
-import { getPropertyBySlug, properties } from "@/data/properties";
+import { getPropertyBySlug } from "@/data/properties";
 import { getPropertyContent } from "@/lib/propertyContent";
 
-export function generateStaticParams() {
-  return properties.map((property) => ({ slug: property.slug }));
-}
+// See src/app/(site)/properties/[slug]/page.tsx for why this (and the
+// other property subpages) render on every request instead of relying
+// on static generation + on-demand revalidation.
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata({
   params,

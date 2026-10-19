@@ -195,12 +195,13 @@ Things only you can do (account access Claude doesn't have). Nothing else is
 blocked on these — the app degrades gracefully without them, per the
 relevant sections above.
 
-- [ ] **SendGrid** (email delivery — see §4 "Transactional email", `src/lib/email.ts`):
-  - [ ] Sign up at [sendgrid.com](https://sendgrid.com) (free tier, 100 emails/day)
-  - [ ] Settings → Sender Authentication → Verify a Single Sender → `krystal.stinson@1stcityllc.com` → confirm via the email it sends
-  - [ ] Settings → API Keys → Create API Key, restricted to "Mail Send" access
-  - [ ] Add `SENDGRID_API_KEY` to `.env.local` (local dev)
-  - [ ] Add `SENDGRID_API_KEY` to Vercel → Project → Settings → Environment Variables (Production, and Preview if wanted) → redeploy
+- [x] **SendGrid** (email delivery — see §4 "Transactional email", `src/lib/email.ts`):
+  - [x] Sign up at [sendgrid.com](https://sendgrid.com) (free tier, 100 emails/day)
+  - [x] Settings → API Keys → Create API Key, restricted to "Mail Send" access
+  - [x] Add `SENDGRID_API_KEY` to Vercel → Project → Settings → Environment Variables (Production)
+  - [ ] Settings → Sender Authentication → **Authenticate Your Domain** → `1stcityllc.net` → add the generated CNAME records to `1stcityllc.net`'s DNS → verify in SendGrid.
+    (Single Sender Verification alone was tried first against `krystal.stinson@1stcityllc.com`, but nobody has DNS access for `1stcityllc.com` — without domain authentication, Gmail and other major providers reject the mail with a 550 even though SendGrid accepts the API call. Switched to `website@1stcityllc.net`, which does have DNS access, and needs full domain authentication instead of single-sender verification.)
+  - [ ] Add `SENDGRID_API_KEY` to `.env.local` (local dev) — optional, only needed to test email sending from a local dev server.
 - [ ] **Custom domain** (Phase 4): point `1stcityllc.net` at Vercel, then set `NEXT_PUBLIC_SITE_URL=https://1stcityllc.net` in Vercel's environment variables.
 
 ## 11. Mockup

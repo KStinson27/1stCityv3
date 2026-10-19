@@ -1,11 +1,14 @@
 /**
- * SendGrid, via a single verified sender (krystal.stinson@1stcityllc.com)
- * rather than a verified sending domain — the team doesn't control DNS
- * for 1stcityllc.com, and SendGrid's single-sender verification works
- * without it (unlike Resend, which requires a verified domain).
+ * SendGrid, sending as a domain-authenticated address on 1stcityllc.net
+ * (SPF/DKIM via SendGrid's Domain Authentication) rather than
+ * 1stcityllc.com — nobody on the team has DNS access for .com, but
+ * 1stcityllc.net's DNS is reachable. Single-sender verification alone
+ * (no domain authentication) isn't enough: major providers like Gmail
+ * reject unauthenticated mail with a 550, even though SendGrid itself
+ * accepts the API call.
  */
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const SENDER_EMAIL = "krystal.stinson@1stcityllc.com";
+const SENDER_EMAIL = "website@1stcityllc.net";
 
 export async function sendEmail(options: {
   to: string;

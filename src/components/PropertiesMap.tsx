@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
@@ -26,13 +25,19 @@ export type MapProperty = {
   lng: number;
 };
 
-export function PropertiesMap({ properties }: { properties: MapProperty[] }) {
-  // react-leaflet reads window at import time — only safe post-mount.
-  useEffect(() => {}, []);
-
+export function PropertiesMap({
+  properties,
+  initialCenter,
+  initialZoom = 12,
+}: {
+  properties: MapProperty[];
+  /** Overrides the default (average-of-all-markers) initial view — use this when one or more markers sit far outside the main cluster, so they don't pull the default zoom out to fit them too. */
+  initialCenter?: [number, number];
+  initialZoom?: number;
+}) {
   if (properties.length === 0) return null;
 
-  const center: [number, number] = [
+  const center: [number, number] = initialCenter ?? [
     properties.reduce((sum, p) => sum + p.lat, 0) / properties.length,
     properties.reduce((sum, p) => sum + p.lng, 0) / properties.length,
   ];
@@ -45,7 +50,7 @@ export function PropertiesMap({ properties }: { properties: MapProperty[] }) {
     <div className="isolate">
       <MapContainer
         center={center}
-        zoom={12}
+        zoom={initialZoom}
         scrollWheelZoom={false}
         style={{ height: "420px", width: "100%", borderRadius: "4px" }}
       >

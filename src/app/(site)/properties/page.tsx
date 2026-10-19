@@ -2,21 +2,6 @@ import type { Metadata } from "next";
 import { PropertiesExplorer } from "@/components/PropertiesExplorer";
 import { PropertiesMap } from "@/components/PropertiesMap";
 import { properties } from "@/data/properties";
-
-// DEMO ONLY — rough neighborhood-level coordinates, not geocoded from the
-// real street addresses. Would need real lat/lng per property (one-time
-// geocoding pass) before this ships. Comstock Tower (Kalamazoo) omitted —
-// it's ~140mi from the rest of the portfolio, needs its own map or a much
-// wider zoom.
-const DEMO_COORDS: Record<string, [number, number]> = {
-  "devin-apartments": [42.3707, -83.0996],
-  "lanier-court-apartments": [42.3698, -83.0218],
-  "noel-village": [42.3487, -83.0346],
-  "west-chicago-apartments": [42.3762, -83.1086],
-  "marketplace-court": [42.3465, -83.0372],
-  "cultural-gardens": [42.3657, -83.0689],
-  "orchestra-tower": [42.3317, -83.0527],
-};
 import {
   computePropertyStatus,
   computeStartingRent,
@@ -27,6 +12,43 @@ import { getAllPropertyPhotos, resolvePhotos } from "@/lib/propertyContent";
 export const metadata: Metadata = {
   title: "Properties",
 };
+
+// Geocoded from each property's street address in src/data/properties.ts
+// (this environment has no outbound access to a geocoding API, so these
+// are placed from knowledge of the named street/cross-street rather than
+// a live lookup — worth a spot-check against Google Maps, but they're
+// real addresses, not guesses). Comstock Tower is in Kalamazoo, ~140mi
+// from the rest of the portfolio — kept on the map, but excluded from
+// the initial-view calculation below so it doesn't force the Detroit
+// cluster to zoom out to fit it.
+const PROPERTY_COORDS: Record<string, [number, number]> = {
+  "devin-apartments": [42.3838, -83.1022], // 2710-2740 W Chicago Blvd, Boston-Edison
+  "west-chicago-apartments": [42.3838, -83.1124], // 3410 W Chicago Blvd, Boston-Edison
+  "lanier-court-apartments": [42.3652, -83.0135], // 3801 Holcomb St, Gratiot Woods
+  "noel-village": [42.3511, -83.0282], // 2158 Chene St, Eastside Historic District
+  "marketplace-court": [42.3478, -83.0376], // 3676 Rivard St, Eastern Market
+  "cultural-gardens": [42.3732, -83.0689], // 500 Frederick St, Midtown/New Center
+  "orchestra-tower": [42.3568, -83.0589], // 3501 Woodward Ave, Midtown/Downtown
+  "comstock-tower": [42.3161, -85.5519], // 5285 E H Ave, Kalamazoo
+};
+
+const DETROIT_METRO_SLUGS = new Set([
+  "devin-apartments",
+  "west-chicago-apartments",
+  "lanier-court-apartments",
+  "noel-village",
+  "marketplace-court",
+  "cultural-gardens",
+  "orchestra-tower",
+]);
+
+function detroitMetroCenter(): [number, number] {
+  const metro = Object.entries(PROPERTY_COORDS).filter(([slug]) => DETROIT_METRO_SLUGS.has(slug));
+  return [
+    metro.reduce((sum, [, [lat]]) => sum + lat, 0) / metro.length,
+    metro.reduce((sum, [, [, lng]]) => sum + lng, 0) / metro.length,
+  ];
+}
 
 export default async function PropertiesPage({
   searchParams,
@@ -76,14 +98,16 @@ export default async function PropertiesPage({
       <div className="mb-8">
         <PropertiesMap
           properties={properties
-            .filter((p) => DEMO_COORDS[p.slug])
+            .filter((p) => PROPERTY_COORDS[p.slug])
             .map((p) => ({
               slug: p.slug,
               name: p.name,
               neighborhood: p.neighborhood,
-              lat: DEMO_COORDS[p.slug][0],
-              lng: DEMO_COORDS[p.slug][1],
+              lat: PROPERTY_COORDS[p.slug][0],
+              lng: PROPERTY_COORDS[p.slug][1],
             }))}
+          initialCenter={detroitMetroCenter()}
+          initialZoom={12}
         />
       </div>
 

@@ -6,12 +6,40 @@ import type { Property } from "@/lib/types";
 import type { UnitAvailabilityStatus } from "@/generated/prisma/enums";
 
 type Filter = "all" | "subsidized" | "market-rate";
+type SortOrder = "featured" | "price-asc" | "price-desc";
 
 const FILTERS: { id: Filter; label: string }[] = [
   { id: "all", label: "All properties" },
   { id: "subsidized", label: "Affordable housing" },
   { id: "market-rate", label: "Market rate" },
 ];
+
+const BEDROOM_OPTIONS: { id: string; label: string; matches: (count: number) => boolean }[] = [
+  { id: "studio", label: "Studio", matches: (c) => c === 0 },
+  { id: "1", label: "1 Bed", matches: (c) => c === 1 },
+  { id: "2", label: "2 Bed", matches: (c) => c === 2 },
+  { id: "3+", label: "3+ Bed", matches: (c) => c >= 3 },
+];
+
+const SORT_OPTIONS: { id: SortOrder; label: string }[] = [
+  { id: "featured", label: "Featured order" },
+  { id: "price-asc", label: "Price: Low to High" },
+  { id: "price-desc", label: "Price: High to Low" },
+];
+
+/** Bedroom count from a unit's type string — "Studio" / "2 Bedroom Townhome" / "3 Bedroom" / etc. */
+function bedroomCount(unitType: string): number {
+  if (/^studio/i.test(unitType)) return 0;
+  const match = unitType.match(/^(\d+)/);
+  return match ? parseInt(match[1], 10) : -1;
+}
+
+/** Parses the "$900"-style display string back to a number for sorting — null/unparsable sorts last. */
+function parseRent(rent: string | null | undefined): number | null {
+  if (!rent) return null;
+  const amount = parseInt(rent.replace(/[^0-9]/g, ""), 10);
+  return Number.isNaN(amount) ? null : amount;
+}
 
 export function PropertiesExplorer({
   properties,
@@ -29,12 +57,31 @@ export function PropertiesExplorer({
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
   const [onlyAvailable, setOnlyAvailable] = useState(false);
+  const [bedrooms, setBedrooms] = useState<Set<string>>(new Set());
+  const [sort, setSort] = useState<SortOrder>("featured");
+
+  function toggleBedroom(id: string) {
+    setBedrooms((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   const filtered = useMemo(() => {
-    return properties.filter((property) => {
+    const activeBedroomFilters = BEDROOM_OPTIONS.filter((b) => bedrooms.has(b.id));
+
+    const result = properties.filter((property) => {
       if (filter === "subsidized" && !property.isSubsidized) return false;
       if (filter === "market-rate" && property.isSubsidized) return false;
       if (onlyAvailable && statusBySlug[property.slug] !== "AVAILABLE") return false;
+
+      if (activeBedroomFilters.length > 0) {
+        const counts = property.units.map((u) => bedroomCount(u.type));
+        const matchesAny = activeBedroomFilters.some((b) => counts.some(b.matches));
+        if (!matchesAny) return false;
+      }
 
       if (search.trim()) {
         const q = search.trim().toLowerCase();
@@ -44,7 +91,19 @@ export function PropertiesExplorer({
 
       return true;
     });
-  }, [properties, filter, search, onlyAvailable, statusBySlug]);
+
+    if (sort === "featured") return result;
+
+    const direction = sort === "price-asc" ? 1 : -1;
+    return [...result].sort((a, b) => {
+      const rentA = parseRent(rentBySlug[a.slug]);
+      const rentB = parseRent(rentBySlug[b.slug]);
+      if (rentA === null && rentB === null) return 0;
+      if (rentA === null) return 1; // unknown price sorts last regardless of direction
+      if (rentB === null) return -1;
+      return (rentA - rentB) * direction;
+    });
+  }, [properties, filter, search, onlyAvailable, statusBySlug, bedrooms, sort, rentBySlug]);
 
   return (
     <>
@@ -68,7 +127,7 @@ export function PropertiesExplorer({
         </div>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2.5" role="group" aria-label="Filter properties">
+      <div className="mb-4 flex flex-wrap items-center gap-2.5" role="group" aria-label="Filter properties">
         {FILTERS.map((f) => {
           const active = filter === f.id;
           return (
@@ -109,6 +168,49 @@ export function PropertiesExplorer({
         </button>
       </div>
 
+      <div className="mb-6 flex flex-wrap items-center gap-2.5">
+        <span className="text-xs font-bold uppercase tracking-wide text-[#9e9e9e]">Bedrooms</span>
+        <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by bedroom count">
+          {BEDROOM_OPTIONS.map((b) => {
+            const active = bedrooms.has(b.id);
+            return (
+              <button
+                key={b.id}
+                type="button"
+                aria-pressed={active}
+                onClick={() => toggleBedroom(b.id)}
+                className={
+                  "rounded-full px-3.5 py-1.5 text-[13px] font-medium " +
+                  (active
+                    ? "bg-primary text-white"
+                    : "border border-input-border bg-surface text-[#424242]")
+                }
+              >
+                {b.label}
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <label htmlFor="property-sort" className="text-xs font-bold uppercase tracking-wide text-[#9e9e9e]">
+            Sort
+          </label>
+          <select
+            id="property-sort"
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SortOrder)}
+            className="rounded border border-input-border bg-surface px-3 py-2 text-[13px] text-[#424242]"
+          >
+            {SORT_OPTIONS.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((property) => (
@@ -139,6 +241,8 @@ export function PropertiesExplorer({
               setSearch("");
               setFilter("all");
               setOnlyAvailable(false);
+              setBedrooms(new Set());
+              setSort("featured");
             }}
             className="mt-1 rounded border border-input-border px-5 py-2 text-sm font-medium text-[#424242]"
           >

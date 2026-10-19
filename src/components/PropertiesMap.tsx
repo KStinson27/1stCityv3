@@ -38,29 +38,35 @@ export function PropertiesMap({ properties }: { properties: MapProperty[] }) {
   ];
 
   return (
-    <MapContainer
-      center={center}
-      zoom={12}
-      scrollWheelZoom={false}
-      style={{ height: "420px", width: "100%", borderRadius: "4px" }}
-    >
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      {properties.map((p) => (
-        <Marker key={p.slug} position={[p.lat, p.lng]} icon={icon}>
-          <Popup>
-            <div className="flex flex-col gap-1">
-              <span className="font-medium">{p.name}</span>
-              {p.neighborhood && <span className="text-xs text-text-secondary">{p.neighborhood}</span>}
-              <Link href={`/properties/${p.slug}`} className="text-xs text-primary">
-                View details →
-              </Link>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
+    // Leaflet's own panes/controls use z-index values up to 1000, which
+    // otherwise escape above the site's sticky header (z-20) on scroll —
+    // `isolate` gives this subtree its own stacking context so nothing
+    // inside it can render above page chrome outside it.
+    <div className="isolate">
+      <MapContainer
+        center={center}
+        zoom={12}
+        scrollWheelZoom={false}
+        style={{ height: "420px", width: "100%", borderRadius: "4px" }}
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {properties.map((p) => (
+          <Marker key={p.slug} position={[p.lat, p.lng]} icon={icon}>
+            <Popup>
+              <div className="flex flex-col gap-1">
+                <span className="font-medium">{p.name}</span>
+                {p.neighborhood && <span className="text-xs text-text-secondary">{p.neighborhood}</span>}
+                <Link href={`/properties/${p.slug}`} className="text-xs text-primary">
+                  View details →
+                </Link>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
+    </div>
   );
 }

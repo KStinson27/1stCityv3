@@ -16,6 +16,7 @@ type Draft = {
   contactEmail: string;
   waitlistSignupEnabled: boolean;
   residentPortalUrl: string;
+  maintenanceMethod: "" | "HOTLINE" | "PORTAL";
 };
 
 export function PropertyContentForm({
@@ -221,6 +222,45 @@ export function PropertyContentForm({
           </span>
         </label>
       )}
+
+      <div className="flex flex-col gap-1.5">
+        <label className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">
+          Maintenance requests
+        </label>
+        <div className="flex flex-wrap gap-4 text-sm text-[#424242]">
+          <label className="flex items-center gap-1.5">
+            <input
+              type="radio"
+              name={`${propertySlug}-maintenance`}
+              checked={draft.maintenanceMethod === ""}
+              onChange={() => update("maintenanceMethod", "")}
+            />
+            Not set yet
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="radio"
+              name={`${propertySlug}-maintenance`}
+              checked={draft.maintenanceMethod === "HOTLINE"}
+              onChange={() => update("maintenanceMethod", "HOTLINE")}
+            />
+            Work order hotline
+          </label>
+          <label className="flex items-center gap-1.5">
+            <input
+              type="radio"
+              name={`${propertySlug}-maintenance`}
+              checked={draft.maintenanceMethod === "PORTAL"}
+              onChange={() => update("maintenanceMethod", "PORTAL")}
+            />
+            Tenant portal
+          </label>
+        </div>
+        <span className="text-xs text-text-secondary">
+          Shown on the public Residents page. &quot;Not set yet&quot; falls back to telling
+          residents to contact the leasing office.
+        </span>
+      </div>
 
       <div className="flex items-center gap-3">
         <button

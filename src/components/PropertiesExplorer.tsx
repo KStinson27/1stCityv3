@@ -18,11 +18,13 @@ export function PropertiesExplorer({
   initialFilter = "all",
   statusBySlug = {},
   photosBySlug = {},
+  rentBySlug = {},
 }: {
   properties: Property[];
   initialFilter?: Filter;
   statusBySlug?: Record<string, UnitAvailabilityStatus>;
   photosBySlug?: Record<string, string[]>;
+  rentBySlug?: Record<string, string | null>;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
@@ -115,6 +117,7 @@ export function PropertiesExplorer({
               property={property}
               availabilityStatus={statusBySlug[property.slug]}
               photos={photosBySlug[property.slug]}
+              startingRent={rentBySlug[property.slug]}
             />
           ))}
         </div>

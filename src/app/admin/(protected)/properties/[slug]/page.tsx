@@ -96,6 +96,7 @@ export default async function AdminPropertyPage({
               contactEmail: content.contactEmail ?? "",
               waitlistSignupEnabled: content.waitlistSignupEnabled,
               residentPortalUrl: content.residentPortalUrl ?? "",
+              maintenanceMethod: content.maintenanceMethod ?? "",
             }}
           />
         </div>

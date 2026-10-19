@@ -39,6 +39,25 @@ export function computePropertyStatus(units: Unit[], overlay: OverlayMap): UnitA
   return best;
 }
 
+/**
+ * Lowest rent across a property's units, for card views — e.g. "$900".
+ * Rent is free text (admins type "$900", "$1,200/mo", etc.), not a
+ * number, so this pulls the first numeric run out of each unit's
+ * effective rent (mergeUnits' resolution) and takes the minimum of
+ * whatever parses. Returns null if nothing does, so callers can fall
+ * back to today's "Contact us" treatment.
+ */
+export function computeStartingRent(units: Unit[], overlay: OverlayMap): string | null {
+  const amounts = mergeUnits(units, overlay)
+    .map((unit) => unit.rent)
+    .filter((rent): rent is string => Boolean(rent))
+    .map((rent) => parseFloat(rent.replace(/,/g, "").match(/\d+(\.\d+)?/)?.[0] ?? ""))
+    .filter((amount) => !Number.isNaN(amount));
+
+  if (amounts.length === 0) return null;
+  return `$${Math.min(...amounts).toLocaleString()}`;
+}
+
 const STATUS_BADGE: Record<UnitAvailabilityStatus, { label: string; className: string }> = {
   AVAILABLE: { label: "Units available", className: "bg-primary-bg text-primary-dark" },
   WAITLIST: { label: "Waitlist", className: "bg-[#FFF3E0] text-[#E65100]" },

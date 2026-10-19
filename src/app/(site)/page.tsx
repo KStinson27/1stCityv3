@@ -2,7 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { PropertyCard } from "@/components/PropertyCard";
 import { getPropertyBySlug, properties, subsidizedCount } from "@/data/properties";
-import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
+import {
+  computePropertyStatus,
+  computeStartingRent,
+  getUnitAvailabilityForAllProperties,
+} from "@/lib/unitAvailability";
 import { getAllPropertyPhotos, resolvePhotos } from "@/lib/propertyContent";
 
 const FEATURED_SLUGS = ["comstock-tower", "devin-apartments", "cultural-gardens"];
@@ -89,6 +93,10 @@ export default async function HomePage() {
                 overlayByProperty[property.slug] ?? {},
               )}
               photos={resolvePhotos(property, photosByProperty[property.slug] ?? [])}
+              startingRent={computeStartingRent(
+                property.units,
+                overlayByProperty[property.slug] ?? {},
+              )}
             />
           ))}
         </div>

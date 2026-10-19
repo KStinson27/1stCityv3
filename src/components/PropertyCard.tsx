@@ -8,10 +8,12 @@ export function PropertyCard({
   property,
   availabilityStatus,
   photos,
+  startingRent,
 }: {
   property: Property;
   availabilityStatus?: UnitAvailabilityStatus;
   photos?: string[];
+  startingRent?: string | null;
 }) {
   const availabilityBadge = availabilityStatus ? describeStatus(availabilityStatus) : null;
   const cardPhoto = (photos ?? property.photos)[0];
@@ -62,6 +64,11 @@ export function PropertyCard({
         <span className="text-sm text-text-secondary">
           {property.neighborhood ?? "Neighborhood coming soon"}
         </span>
+        {startingRent && (
+          <span className="text-sm font-medium text-primary-dark">
+            Starting at {startingRent}/mo
+          </span>
+        )}
         <div className="flex items-center justify-between pt-2">
           <span className="text-sm text-text-secondary">
             {property.unitMixSummary ?? "Unit mix coming soon"}

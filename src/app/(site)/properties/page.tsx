@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { PropertiesExplorer } from "@/components/PropertiesExplorer";
 import { properties } from "@/data/properties";
-import { computePropertyStatus, getUnitAvailabilityForAllProperties } from "@/lib/unitAvailability";
+import {
+  computePropertyStatus,
+  computeStartingRent,
+  getUnitAvailabilityForAllProperties,
+} from "@/lib/unitAvailability";
 import { getAllPropertyPhotos, resolvePhotos } from "@/lib/propertyContent";
 
 export const metadata: Metadata = {
@@ -33,6 +37,12 @@ export default async function PropertiesPage({
       resolvePhotos(property, photosByProperty[property.slug] ?? []),
     ]),
   );
+  const rentBySlug = Object.fromEntries(
+    properties.map((property) => [
+      property.slug,
+      computeStartingRent(property.units, overlayByProperty[property.slug] ?? {}),
+    ]),
+  );
 
   return (
     <section className="px-4 py-12 md:px-16 md:py-14">
@@ -52,6 +62,7 @@ export default async function PropertiesPage({
         initialFilter={initialFilter}
         statusBySlug={statusBySlug}
         photosBySlug={photosBySlug}
+        rentBySlug={rentBySlug}
       />
     </section>
   );

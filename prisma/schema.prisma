@@ -148,9 +148,30 @@ model PropertyContent {
   /// on the public site instead of (well, alongside) the regular
   /// contact form when a unit is WAITLIST/FULL. Off by default.
   waitlistSignupEnabled Boolean  @default(false)
+  /// How residents submit a maintenance request for this property —
+  /// shown on the public /residents page. Null is a real state ("not
+  /// decided yet"), not just an unfilled default.
+  maintenanceMethod     MaintenanceMethod?
   updatedAt             DateTime @updatedAt
 
   @@map("property_content")
+}
+
+enum MaintenanceMethod {
+  HOTLINE
+  PORTAL
+}
+
+/// Small generic key-value store for site-wide (not per-property) text
+/// content — currently just the shared maintenance work-order hotline
+/// number. Same spirit as SiteDocument, for plain text instead of a
+/// file link.
+model SiteSetting {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+
+  @@map("site_setting")
 }
 
 /// Staff-uploaded property photos (Vercel Blob). Any rows for a

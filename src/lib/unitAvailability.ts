@@ -22,4 +22,9 @@ function toOverlayMap(rows: UnitAvailabilityRow[]): OverlayMap {
   return map;
 }
 
-export { mergeUnits, computePropertyStatus, describeStatus } from "@/lib/unitAvailabilityStatus";
+export {
+  mergeUnits,
+  computePropertyStatus,
+  computeStartingRent,
+  describeStatus,
+} from "@/lib/unitAvailabilityStatus";

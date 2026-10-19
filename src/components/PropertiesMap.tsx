@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
 import "leaflet/dist/leaflet.css";
@@ -82,6 +82,11 @@ export function PropertiesMap({
             }}
             eventHandlers={{ click: () => onSelectPin?.(p.slug) }}
           >
+            {/* Hover preview — just the name, so it's visible without a click. The
+                click Popup below still carries the full detail + "View details" link. */}
+            <Tooltip direction="top" offset={[0, -8]} opacity={1}>
+              {p.name}
+            </Tooltip>
             <Popup>
               <div className="flex flex-col gap-1">
                 <span className="font-medium">{p.name}</span>

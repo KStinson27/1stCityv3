@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import { PropertiesExplorer } from "@/components/PropertiesExplorer";
-import { PropertiesMap } from "@/components/PropertiesMap";
+import { PropertiesMapAndList } from "@/components/PropertiesMapAndList";
 import { properties } from "@/data/properties";
 import {
   computePropertyStatus,
@@ -95,23 +94,18 @@ export default async function PropertiesPage({
         </p>
       </div>
 
-      <div className="mb-8">
-        <PropertiesMap
-          properties={properties
-            .filter((p) => PROPERTY_COORDS[p.slug])
-            .map((p) => ({
-              slug: p.slug,
-              name: p.name,
-              neighborhood: p.neighborhood,
-              lat: PROPERTY_COORDS[p.slug][0],
-              lng: PROPERTY_COORDS[p.slug][1],
-            }))}
-          initialCenter={detroitMetroCenter()}
-          initialZoom={12}
-        />
-      </div>
-
-      <PropertiesExplorer
+      <PropertiesMapAndList
+        mapProperties={properties
+          .filter((p) => PROPERTY_COORDS[p.slug])
+          .map((p) => ({
+            slug: p.slug,
+            name: p.name,
+            neighborhood: p.neighborhood,
+            lat: PROPERTY_COORDS[p.slug][0],
+            lng: PROPERTY_COORDS[p.slug][1],
+          }))}
+        initialMapCenter={detroitMetroCenter()}
+        initialMapZoom={12}
         properties={properties}
         initialFilter={initialFilter}
         statusBySlug={statusBySlug}

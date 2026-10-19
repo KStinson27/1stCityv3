@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { PropertyCard } from "./PropertyCard";
 import type { Property } from "@/lib/types";
 import type { UnitAvailabilityStatus } from "@/generated/prisma/enums";
@@ -47,12 +47,18 @@ export function PropertiesExplorer({
   statusBySlug = {},
   photosBySlug = {},
   rentBySlug = {},
+  selectedSlug = null,
+  onHoverCard,
 }: {
   properties: Property[];
   initialFilter?: Filter;
   statusBySlug?: Record<string, UnitAvailabilityStatus>;
   photosBySlug?: Record<string, string[]>;
   rentBySlug?: Record<string, string | null>;
+  /** Set when a map pin is clicked — the matching card scrolls into view and highlights. */
+  selectedSlug?: string | null;
+  /** Fired on card hover/unhover, so a parent can highlight the matching map pin. */
+  onHoverCard?: (slug: string | null) => void;
 }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState<Filter>(initialFilter);
@@ -68,6 +74,21 @@ export function PropertiesExplorer({
       return next;
     });
   }
+
+  function clearFilters() {
+    setSearch("");
+    setFilter("all");
+    setOnlyAvailable(false);
+    setBedrooms(new Set());
+    setSort("featured");
+  }
+
+  const hasActiveFilters =
+    search.trim() !== "" ||
+    filter !== "all" ||
+    onlyAvailable ||
+    bedrooms.size > 0 ||
+    sort !== "featured";
 
   const filtered = useMemo(() => {
     const activeBedroomFilters = BEDROOM_OPTIONS.filter((b) => bedrooms.has(b.id));
@@ -104,6 +125,14 @@ export function PropertiesExplorer({
       return (rentA - rentB) * direction;
     });
   }, [properties, filter, search, onlyAvailable, statusBySlug, bedrooms, sort, rentBySlug]);
+
+  // A pin click selects a property that might be scrolled out of view below the map.
+  useEffect(() => {
+    if (!selectedSlug) return;
+    document
+      .getElementById(`property-card-${selectedSlug}`)
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }, [selectedSlug]);
 
   return (
     <>
@@ -168,7 +197,7 @@ export function PropertiesExplorer({
         </button>
       </div>
 
-      <div className="mb-6 flex flex-wrap items-center gap-2.5">
+      <div className="mb-3 flex flex-wrap items-center gap-2.5">
         <span className="text-xs font-bold uppercase tracking-wide text-[#9e9e9e]">Bedrooms</span>
         <div className="flex flex-wrap items-center gap-2" role="group" aria-label="Filter by bedroom count">
           {BEDROOM_OPTIONS.map((b) => {
@@ -211,16 +240,43 @@ export function PropertiesExplorer({
         </div>
       </div>
 
+      <div className="mb-6 flex items-center justify-between">
+        <span className="text-[13px] text-text-secondary">
+          {hasActiveFilters
+            ? `Showing ${filtered.length} of ${properties.length} properties`
+            : `${properties.length} properties`}
+        </span>
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={clearFilters}
+            className="text-[13px] font-medium text-primary hover:text-primary-dark"
+          >
+            Reset filters
+          </button>
+        )}
+      </div>
+
       {filtered.length > 0 ? (
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((property) => (
-            <PropertyCard
+            <div
               key={property.slug}
-              property={property}
-              availabilityStatus={statusBySlug[property.slug]}
-              photos={photosBySlug[property.slug]}
-              startingRent={rentBySlug[property.slug]}
-            />
+              id={`property-card-${property.slug}`}
+              onMouseEnter={() => onHoverCard?.(property.slug)}
+              onMouseLeave={() => onHoverCard?.(null)}
+              className={
+                "rounded transition-shadow " +
+                (selectedSlug === property.slug ? "ring-2 ring-primary ring-offset-2" : "")
+              }
+            >
+              <PropertyCard
+                property={property}
+                availabilityStatus={statusBySlug[property.slug]}
+                photos={photosBySlug[property.slug]}
+                startingRent={rentBySlug[property.slug]}
+              />
+            </div>
           ))}
         </div>
       ) : (
@@ -237,13 +293,7 @@ export function PropertiesExplorer({
           </p>
           <button
             type="button"
-            onClick={() => {
-              setSearch("");
-              setFilter("all");
-              setOnlyAvailable(false);
-              setBedrooms(new Set());
-              setSort("featured");
-            }}
+            onClick={clearFilters}
             className="mt-1 rounded border border-input-border px-5 py-2 text-sm font-medium text-[#424242]"
           >
             Clear filters

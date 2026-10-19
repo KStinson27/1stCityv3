@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import Link from "next/link";
@@ -29,12 +30,24 @@ export function PropertiesMap({
   properties,
   initialCenter,
   initialZoom = 12,
+  selectedSlug = null,
+  onSelectPin,
 }: {
   properties: MapProperty[];
   /** Overrides the default (average-of-all-markers) initial view — use this when one or more markers sit far outside the main cluster, so they don't pull the default zoom out to fit them too. */
   initialCenter?: [number, number];
   initialZoom?: number;
+  /** Set when a property card is hovered — opens that pin's popup. */
+  selectedSlug?: string | null;
+  /** Fired when a pin is clicked, so a parent can scroll/highlight the matching card. */
+  onSelectPin?: (slug: string) => void;
 }) {
+  const markerRefs = useRef<Record<string, L.Marker>>({});
+
+  useEffect(() => {
+    if (selectedSlug) markerRefs.current[selectedSlug]?.openPopup();
+  }, [selectedSlug]);
+
   if (properties.length === 0) return null;
 
   const center: [number, number] = initialCenter ?? [
@@ -59,7 +72,16 @@ export function PropertiesMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         {properties.map((p) => (
-          <Marker key={p.slug} position={[p.lat, p.lng]} icon={icon}>
+          <Marker
+            key={p.slug}
+            position={[p.lat, p.lng]}
+            icon={icon}
+            ref={(instance) => {
+              if (instance) markerRefs.current[p.slug] = instance;
+              else delete markerRefs.current[p.slug];
+            }}
+            eventHandlers={{ click: () => onSelectPin?.(p.slug) }}
+          >
             <Popup>
               <div className="flex flex-col gap-1">
                 <span className="font-medium">{p.name}</span>

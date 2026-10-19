@@ -85,6 +85,14 @@ function PropertyGroup({
   const rows = showArchived ? archived : active;
 
   function handleEmail() {
+    const count = active.length;
+    if (
+      !confirm(
+        `Email ${count} active waitlist signup${count === 1 ? "" : "s"} for ${group.name} to ${group.contactEmail}?`,
+      )
+    ) {
+      return;
+    }
     setNote(null);
     startTransition(async () => {
       try {

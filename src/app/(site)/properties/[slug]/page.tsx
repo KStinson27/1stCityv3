@@ -287,6 +287,18 @@ export default async function PropertyDetailPage({
 
         {/* Sidebar */}
         <div className="flex w-full flex-col gap-5 md:w-[340px] md:shrink-0">
+          {property.address && (
+            <div className="overflow-hidden rounded shadow-card">
+              <iframe
+                title={`Map of ${property.name}`}
+                src={`https://maps.google.com/maps?q=${encodeURIComponent(property.address)}&output=embed`}
+                width="100%"
+                height="220"
+                style={{ border: 0, display: "block" }}
+                loading="lazy"
+              />
+            </div>
+          )}
           <div className="flex flex-col gap-4 rounded bg-surface p-6 shadow-card">
             <div className="flex items-center gap-3.5">
               <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-primary-bg text-[13px] text-primary-dark">

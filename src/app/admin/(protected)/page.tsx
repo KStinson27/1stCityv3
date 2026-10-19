@@ -16,7 +16,7 @@ export default async function AdminDashboardPage() {
   const canViewProperty = hasPermission(permissions, "property_contact_submissions", "view");
   const canViewProperties = hasPermission(permissions, "properties", "view");
 
-  const [newVendorCount, newContactCount, overlayByProperty] = await Promise.all([
+  const [newVendorCount, newContactCount, activeWaitlistCount, overlayByProperty] = await Promise.all([
     canViewVendor ? prisma.vendorSubmission.count({ where: { status: "NEW" } }) : 0,
     canViewGeneral || canViewProperty
       ? prisma.contactSubmission.count({
@@ -26,6 +26,11 @@ export default async function AdminDashboardPage() {
               ? {}
               : { propertySlug: canViewProperty ? { not: null } : null }),
           },
+        })
+      : 0,
+    canViewProperty
+      ? prisma.contactSubmission.count({
+          where: { isWaitlistSignup: true, archivedAt: null },
         })
       : 0,
     canViewProperties
@@ -56,6 +61,12 @@ export default async function AdminDashboardPage() {
       label: "Properties missing availability",
       value: propertiesNeedingAvailability,
       icon: <BuildingIcon />,
+    },
+    canViewProperty && {
+      href: "/admin/waitlist",
+      label: "Active waitlist signups",
+      value: activeWaitlistCount,
+      icon: <ClockIcon />,
     },
   ].filter(Boolean) as { href: string; label: string; value: number; icon: React.ReactNode }[];
 
@@ -135,6 +146,15 @@ function BuildingIcon() {
       <line x1="9" y1="12" x2="9" y2="12" />
       <line x1="15" y1="12" x2="15" y2="12" />
       <line x1="9" y1="17" x2="15" y2="17" />
+    </svg>
+  );
+}
+
+function ClockIcon() {
+  return (
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="12" cy="12" r="10" />
+      <polyline points="12 6 12 12 16 14" />
     </svg>
   );
 }

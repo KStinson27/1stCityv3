@@ -17,6 +17,7 @@ import {
   resolvePhotos,
 } from "@/lib/propertyContent";
 import { getSiteDocument, RENTAL_APPLICATION_KEY } from "@/lib/siteDocument";
+import { buildApartmentComplexJsonLd, toJsonLdScript } from "@/lib/structuredData";
 
 // Admin-editable content (description, contact info, unit availability,
 // the waitlist toggle) needs to show up immediately after a save — not
@@ -55,9 +56,20 @@ export default async function PropertyDetailPage({
   const availabilityBadge = describeStatus(status);
   const content = mergePropertyContent(property, contentRow);
   const photos = resolvePhotos(property, dbPhotos);
+  const jsonLd = buildApartmentComplexJsonLd({
+    property,
+    description: content.description,
+    amenities: content.amenities,
+    photos,
+    units,
+  });
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: toJsonLdScript(jsonLd) }}
+      />
       <div className="border-b border-border bg-surface px-4 py-4 text-sm text-text-secondary md:px-16">
         <Link href="/properties" className="text-primary hover:text-primary-dark">
           Properties

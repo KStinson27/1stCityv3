@@ -33,7 +33,10 @@ export default function PrivacyPage() {
           <li>
             <strong>Automatically collected information</strong> — standard technical
             information such as your IP address, browser type, and pages visited,
-            collected through server logs and hosting infrastructure.
+            collected through server logs and hosting infrastructure. We also use
+            privacy-friendly analytics (Vercel Analytics and Speed Insights) to
+            understand site traffic and performance — these do not use cookies or
+            track you across other websites.
           </li>
           <li>
             <strong>Cookies</strong> — we use a small number of essential cookies,

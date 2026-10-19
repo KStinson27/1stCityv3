@@ -64,10 +64,14 @@ export function PropertyCard({
         <span className="text-sm text-text-secondary">
           {property.neighborhood ?? "Neighborhood coming soon"}
         </span>
-        {startingRent && (
+        {startingRent ? (
           <span className="text-sm font-medium text-primary-dark">
             Starting at {startingRent}/mo
           </span>
+        ) : (
+          property.isSubsidized && (
+            <span className="text-sm text-text-secondary">Income-based rent</span>
+          )
         )}
         <div className="flex items-center justify-between pt-2">
           <span className="text-sm text-text-secondary">

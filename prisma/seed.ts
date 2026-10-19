@@ -44,9 +44,9 @@ async function main() {
   // production — reused here so a seeded account always has somewhere
   // to start, matching whichever database this runs against.
   const ownerRole = await prisma.role.upsert({
-    where: { name: "Owner" },
+    where: { name: "Website Owner" },
     create: {
-      name: "Owner",
+      name: "Website Owner",
       permissions: {
         create: RESOURCES.flatMap((resource) =>
           RESOURCE_ACTIONS[resource].map((action) => ({ resource, action })),

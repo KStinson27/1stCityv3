@@ -372,12 +372,17 @@ export async function createRole(name: string, permissions: PermissionGrant[]) {
   revalidatePath("/admin/staff");
 }
 
-export async function updateRolePermissions(roleId: string, permissions: PermissionGrant[]) {
+export async function updateRole(roleId: string, name: string, permissions: PermissionGrant[]) {
   await requirePermission("staff", "edit");
   validatePermissions(permissions);
+  const trimmedName = name.trim();
+  if (!trimmedName) {
+    throw new Error("Role name is required");
+  }
   await assertStaffEditSurvives({ roleIdBeingEdited: roleId, newPermissionsForThatRole: permissions });
 
   await prisma.$transaction([
+    prisma.role.update({ where: { id: roleId }, data: { name: trimmedName } }),
     prisma.rolePermission.deleteMany({ where: { roleId } }),
     prisma.rolePermission.createMany({
       data: permissions.map((p) => ({ roleId, resource: p.resource, action: p.action })),

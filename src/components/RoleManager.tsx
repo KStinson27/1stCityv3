@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { createRole, deleteRole, updateRolePermissions } from "@/app/admin/(protected)/actions";
+import { createRole, deleteRole, updateRole } from "@/app/admin/(protected)/actions";
 import {
   ACTIONS,
   RESOURCES,
@@ -93,6 +93,7 @@ function ChevronIcon({ collapsed }: { collapsed: boolean }) {
 
 function RoleCard({ role }: { role: Role }) {
   const [collapsed, setCollapsed] = useState(true);
+  const [name, setName] = useState(role.name);
   const [selected, setSelected] = useState(
     () => new Set(role.permissions.map((p) => grantKey(p.resource, p.action))),
   );
@@ -120,7 +121,7 @@ function RoleCard({ role }: { role: Role }) {
           const [resource, action] = k.split(":") as [Resource, Action];
           return { resource, action };
         });
-        await updateRolePermissions(role.id, permissions);
+        await updateRole(role.id, name, permissions);
         setNote("Saved.");
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to save");
@@ -149,7 +150,7 @@ function RoleCard({ role }: { role: Role }) {
         className="flex items-center justify-between gap-3 text-left"
       >
         <div className="flex flex-col gap-0.5">
-          <span className="text-base font-medium">{role.name}</span>
+          <span className="text-base font-medium">{name}</span>
           <span className="text-xs text-text-secondary">
             {role.userCount} staff account{role.userCount === 1 ? "" : "s"}
           </span>
@@ -161,6 +162,26 @@ function RoleCard({ role }: { role: Role }) {
 
       {!collapsed && (
         <>
+          <div className="flex flex-col gap-1.5">
+            <label
+              htmlFor={`role-name-${role.id}`}
+              className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]"
+            >
+              Role name
+            </label>
+            <input
+              id={`role-name-${role.id}`}
+              type="text"
+              value={name}
+              onChange={(e) => {
+                setNote(null);
+                setError(null);
+                setName(e.target.value);
+              }}
+              className="w-full max-w-sm rounded border border-input-border px-3.5 py-2.5 text-sm"
+            />
+          </div>
+
           <PermissionGrid selected={selected} onToggle={toggle} />
 
           {error && <span className="text-xs text-[#c62828]">{error}</span>}

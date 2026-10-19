@@ -1,5 +1,4 @@
 import { prisma } from "@/lib/prisma";
-import type { MaintenanceMethod } from "@/generated/prisma/enums";
 import type { IncomeLimitRow, Property } from "@/lib/types";
 
 export type PropertyContentFields = {
@@ -13,7 +12,6 @@ export type PropertyContentFields = {
   contactEmail: string | null;
   waitlistSignupEnabled: boolean;
   residentPortalUrl: string | null;
-  maintenanceMethod: MaintenanceMethod | null;
 };
 
 function toContentFields(row: {
@@ -27,7 +25,6 @@ function toContentFields(row: {
   contactEmail: string | null;
   waitlistSignupEnabled: boolean;
   residentPortalUrl: string | null;
-  maintenanceMethod: MaintenanceMethod | null;
 }): PropertyContentFields {
   return {
     description: row.description,
@@ -40,7 +37,6 @@ function toContentFields(row: {
     contactEmail: row.contactEmail,
     waitlistSignupEnabled: row.waitlistSignupEnabled,
     residentPortalUrl: row.residentPortalUrl,
-    maintenanceMethod: row.maintenanceMethod,
   };
 }
 
@@ -75,7 +71,6 @@ export function mergePropertyContent(
       // edited in the admin yet.
       waitlistSignupEnabled: false,
       residentPortalUrl: null,
-      maintenanceMethod: null,
     };
   }
   return content;

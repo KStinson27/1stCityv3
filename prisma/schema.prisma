@@ -148,30 +148,9 @@ model PropertyContent {
   /// on the public site instead of (well, alongside) the regular
   /// contact form when a unit is WAITLIST/FULL. Off by default.
   waitlistSignupEnabled Boolean  @default(false)
-  /// How residents submit a maintenance request for this property —
-  /// shown on the public /residents page. Null is a real state ("not
-  /// decided yet"), not just an unfilled default.
-  maintenanceMethod     MaintenanceMethod?
   updatedAt             DateTime @updatedAt
 
   @@map("property_content")
-}
-
-enum MaintenanceMethod {
-  HOTLINE
-  PORTAL
-}
-
-/// Small generic key-value store for site-wide (not per-property) text
-/// content — currently just the shared maintenance work-order hotline
-/// number. Same spirit as SiteDocument, for plain text instead of a
-/// file link.
-model SiteSetting {
-  key       String   @id
-  value     String
-  updatedAt DateTime @updatedAt
-
-  @@map("site_setting")
 }
 
 /// Staff-uploaded property photos (Vercel Blob). Any rows for a
@@ -249,28 +228,28 @@ model UnitAvailability {
 /// per-property contact form (/properties/[slug]/contact). propertySlug/
 /// propertyName are null for a general inquiry.
 model ContactSubmission {
-  id                String           @id @default(cuid())
-  name              String
-  email             String
-  phone             String?
-  message           String
-  propertySlug      String?
-  propertyName      String?
-  preferredContact  String?
-  status            SubmissionStatus @default(NEW)
-  internalNote      String?
+  id               String           @id @default(cuid())
+  name             String
+  email            String
+  phone            String?
+  message          String
+  propertySlug     String?
+  propertyName     String?
+  preferredContact String?
+  status           SubmissionStatus @default(NEW)
+  internalNote     String?
   /// True for a "notify me" waitlist signup (see the waitlist route
   /// and PropertyContent.waitlistSignupEnabled) rather than a regular
   /// inquiry submitted through a contact form. Always has propertySlug
   /// set, so it's covered by the same property_contact_submissions
   /// permission as any other per-property submission.
-  isWaitlistSignup  Boolean          @default(false)
+  isWaitlistSignup Boolean          @default(false)
   /// Which unit type a waitlist signup is for (null otherwise) —
   /// signup is scoped per unit type, not the whole property.
-  unitType          String?
-  archivedAt        DateTime?
-  createdAt         DateTime         @default(now())
-  updatedAt         DateTime         @updatedAt
+  unitType         String?
+  archivedAt       DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 
   @@index([status])
   @@map("contact_submission")

@@ -1,9 +1,7 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import type { ReactNode } from "react";
 import { properties } from "@/data/properties";
 import { getAllPropertyContent } from "@/lib/propertyContent";
-import { getSiteSetting, MAINTENANCE_HOTLINE_KEY } from "@/lib/siteSettings";
 
 export const metadata: Metadata = { title: "Residents" };
 
@@ -25,7 +23,7 @@ const FAQ: { question: string; answer: string }[] = [
   {
     question: "How do I submit a maintenance request?",
     answer:
-      "This depends on your property — see Maintenance requests above. For an emergency outside business hours — no heat, active flooding, no working smoke detector — call your property's emergency maintenance line first.",
+      "Submit a maintenance request through your resident portal, or call the work order hotline if your property doesn't use the portal for maintenance. For an emergency outside business hours — no heat, active flooding, no working smoke detector — call your property's emergency maintenance line first.",
   },
   {
     question: "What's the guest and pet policy?",
@@ -45,10 +43,7 @@ const FAQ: { question: string; answer: string }[] = [
 ];
 
 export default async function ResidentsPage() {
-  const [content, hotlineNumber] = await Promise.all([
-    getAllPropertyContent(),
-    getSiteSetting(MAINTENANCE_HOTLINE_KEY),
-  ]);
+  const content = await getAllPropertyContent();
 
   return (
     <>
@@ -91,66 +86,6 @@ export default async function ResidentsPage() {
                     Contact the leasing office
                   </Link>
                 )}
-              </div>
-            );
-          })}
-        </div>
-      </section>
-
-      <section className="flex flex-col gap-5 px-4 py-10 md:px-16">
-        <h2 className="text-2xl font-bold">Maintenance requests</h2>
-        <div className="overflow-hidden rounded bg-surface shadow-card">
-          {properties.map((property) => {
-            const method = content[property.slug]?.maintenanceMethod ?? null;
-            const portalUrl = content[property.slug]?.residentPortalUrl ?? null;
-
-            let action: ReactNode;
-            if (method === "HOTLINE") {
-              action = hotlineNumber ? (
-                <a
-                  href={`tel:${hotlineNumber.replace(/[^\d+]/g, "")}`}
-                  className="rounded bg-primary px-5 py-2 text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
-                >
-                  Call {hotlineNumber}
-                </a>
-              ) : (
-                <span className="text-[13px] text-text-secondary">
-                  Hotline number coming soon — contact your leasing office for now
-                </span>
-              );
-            } else if (method === "PORTAL") {
-              action = portalUrl ? (
-                <a
-                  href={portalUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded bg-primary px-5 py-2 text-[13px] font-medium uppercase tracking-wide text-white shadow-button"
-                >
-                  Submit via resident portal →
-                </a>
-              ) : (
-                <span className="text-[13px] text-text-secondary">
-                  Resident portal coming soon — contact your leasing office for now
-                </span>
-              );
-            } else {
-              action = (
-                <Link
-                  href={`/properties/${property.slug}/contact`}
-                  className="text-[13px] text-primary hover:text-primary-dark"
-                >
-                  Contact the leasing office
-                </Link>
-              );
-            }
-
-            return (
-              <div
-                key={property.slug}
-                className="flex flex-wrap items-center justify-between gap-3 border-t border-border px-5 py-4 first:border-t-0"
-              >
-                <span className="text-sm font-medium">{property.name}</span>
-                {action}
               </div>
             );
           })}

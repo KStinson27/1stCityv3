@@ -118,7 +118,6 @@ export async function updatePropertyContent(
     contactEmail: string;
     waitlistSignupEnabled: boolean;
     residentPortalUrl: string;
-    maintenanceMethod: "" | "HOTLINE" | "PORTAL";
   },
 ) {
   await requirePermission("properties", "edit");
@@ -131,7 +130,6 @@ export async function updatePropertyContent(
       maxAnnualIncome: row.maxAnnualIncome.trim() || null,
     }))
     .filter((row) => row.householdSize.length > 0);
-  const maintenanceMethod = data.maintenanceMethod || null;
 
   await prisma.propertyContent.upsert({
     where: { propertySlug },
@@ -147,7 +145,6 @@ export async function updatePropertyContent(
       contactEmail: data.contactEmail.trim() || null,
       waitlistSignupEnabled: data.waitlistSignupEnabled,
       residentPortalUrl: data.residentPortalUrl.trim() || null,
-      maintenanceMethod,
     },
     update: {
       description: data.description.trim() || null,
@@ -160,29 +157,10 @@ export async function updatePropertyContent(
       contactEmail: data.contactEmail.trim() || null,
       waitlistSignupEnabled: data.waitlistSignupEnabled,
       residentPortalUrl: data.residentPortalUrl.trim() || null,
-      maintenanceMethod,
     },
   });
 
   revalidatePropertyPaths(propertySlug);
-}
-
-export async function updateSiteSetting(key: string, value: string) {
-  await requirePermission("documents", "edit");
-
-  const trimmed = value.trim();
-  if (trimmed) {
-    await prisma.siteSetting.upsert({
-      where: { key },
-      create: { key, value: trimmed },
-      update: { value: trimmed },
-    });
-  } else {
-    await prisma.siteSetting.deleteMany({ where: { key } });
-  }
-
-  revalidatePath("/residents");
-  revalidatePath("/admin/documents");
 }
 
 export async function deletePropertyPhoto(photoId: string) {

@@ -14,6 +14,8 @@ export async function sendEmail(options: {
   to: string;
   subject: string;
   text: string;
+  /** Branded HTML version (see src/lib/emailTemplate.ts). Optional — falls back to plain text alone when omitted. */
+  html?: string;
   fromName?: string;
   /** Logged if SENDGRID_API_KEY isn't set, in place of the generic message below. */
   skippedContext?: string;
@@ -37,7 +39,12 @@ export async function sendEmail(options: {
         personalizations: [{ to: [{ email: options.to }] }],
         from: { email: SENDER_EMAIL, name: options.fromName ?? "1st City LLC Website" },
         subject: options.subject,
-        content: [{ type: "text/plain", value: options.text }],
+        content: options.html
+          ? [
+              { type: "text/plain", value: options.text },
+              { type: "text/html", value: options.html },
+            ]
+          : [{ type: "text/plain", value: options.text }],
       }),
     });
     if (!response.ok) {

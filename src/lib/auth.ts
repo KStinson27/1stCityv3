@@ -4,6 +4,7 @@ import { twoFactor } from "better-auth/plugins";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 import { sendEmail } from "./email";
+import { renderEmailHtml } from "./emailTemplate";
 
 async function sendResetPasswordEmail(user: { name: string; email: string }, url: string) {
   await sendEmail({
@@ -20,6 +21,13 @@ async function sendResetPasswordEmail(user: { name: string; email: string }, url
       "",
       "This link expires in 1 hour.",
     ].join("\n"),
+    html: renderEmailHtml({
+      heading: "Reset your password",
+      intro: `Hi ${user.name || "there"}, a password reset was requested for your 1st City LLC staff portal account.`,
+      cta: { label: "Reset password", url },
+      footerNote:
+        "If you didn't request this, you can safely ignore this email — your password won't change. This link expires in 1 hour.",
+    }),
     skippedContext: `SENDGRID_API_KEY not set — no reset email sent to ${user.email}. Reset URL: ${url}`,
   });
 }

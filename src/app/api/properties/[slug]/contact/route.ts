@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { getPropertyContent } from "@/lib/propertyContent";
 import { checkRecaptcha } from "@/lib/recaptcha";
 import { sendEmail } from "@/lib/email";
+import { renderEmailHtml } from "@/lib/emailTemplate";
+import { SITE_URL } from "@/lib/site";
 
 export async function POST(
   request: Request,
@@ -64,6 +66,18 @@ export async function POST(
       "",
       message.message,
     ].join("\n"),
+    html: renderEmailHtml({
+      heading: `New inquiry — ${property.name}`,
+      intro: "Someone asked about this property through the website.",
+      fields: [
+        { label: "Name", value: message.name },
+        { label: "Email", value: message.email, href: `mailto:${message.email}` },
+        ...(message.phone ? [{ label: "Phone", value: message.phone, href: `tel:${message.phone}` }] : []),
+        { label: "Preferred contact", value: message.preferredContact },
+      ],
+      message: { label: "Message", body: message.message },
+      cta: { label: "View in admin", url: `${SITE_URL}/admin/contact-submissions` },
+    }),
     skippedContext: `SENDGRID_API_KEY not set — no email sent for ${property.name}; submission saved to /admin.`,
   });
 

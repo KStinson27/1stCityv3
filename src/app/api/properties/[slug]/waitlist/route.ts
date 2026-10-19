@@ -6,6 +6,8 @@ import { getPropertyContent } from "@/lib/propertyContent";
 import { getUnitAvailabilityForSlug } from "@/lib/unitAvailability";
 import { checkRecaptcha } from "@/lib/recaptcha";
 import { sendEmail } from "@/lib/email";
+import { renderEmailHtml } from "@/lib/emailTemplate";
+import { SITE_URL } from "@/lib/site";
 
 export async function POST(
   request: Request,
@@ -94,6 +96,17 @@ export async function POST(
       "",
       "They asked to be notified when this unit type becomes available.",
     ].join("\n"),
+    html: renderEmailHtml({
+      heading: `New waitlist signup — ${property.name}`,
+      intro: `They asked to be notified when a ${unit.type} unit becomes available.`,
+      fields: [
+        { label: "Unit type", value: unit.type },
+        { label: "Name", value: signup.name },
+        { label: "Email", value: signup.email, href: `mailto:${signup.email}` },
+        ...(signup.phone ? [{ label: "Phone", value: signup.phone, href: `tel:${signup.phone}` }] : []),
+      ],
+      cta: { label: "View in admin", url: `${SITE_URL}/admin/waitlist` },
+    }),
     skippedContext: `SENDGRID_API_KEY not set — no email sent for ${property.name} waitlist signup; submission saved to /admin.`,
   });
 

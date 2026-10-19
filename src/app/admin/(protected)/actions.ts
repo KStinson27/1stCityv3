@@ -11,6 +11,7 @@ import type { IncomeLimitRow } from "@/lib/types";
 import { getPropertyBySlug } from "@/data/properties";
 import { getPropertyContent, mergePropertyContent } from "@/lib/propertyContent";
 import { sendEmail } from "@/lib/email";
+import { renderEmailHtml } from "@/lib/emailTemplate";
 import {
   ACTIONS,
   RESOURCES,
@@ -282,6 +283,19 @@ export async function emailWaitlistToManager(
     to,
     subject: `${property.name} — waitlist signups (${signups.length})`,
     text,
+    html: renderEmailHtml({
+      heading: `${property.name} — waitlist signups`,
+      intro: `${signups.length} active signup${signups.length === 1 ? "" : "s"}, sent on request from the admin Waitlist page.`,
+      items: signups.map((s) => ({
+        title: s.name,
+        fields: [
+          { label: "Email", value: s.email, href: `mailto:${s.email}` },
+          ...(s.phone ? [{ label: "Phone", value: s.phone, href: `tel:${s.phone}` }] : []),
+          { label: "Unit type", value: s.unitType ?? "—" },
+          { label: "Signed up", value: dateFormatter.format(s.createdAt) },
+        ],
+      })),
+    }),
     fromName: "1st City LLC Website",
   });
 

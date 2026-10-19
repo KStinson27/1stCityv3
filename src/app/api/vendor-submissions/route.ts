@@ -3,6 +3,8 @@ import { vendorSubmissionApiSchema } from "@/lib/validation";
 import { prisma } from "@/lib/prisma";
 import { checkRecaptcha } from "@/lib/recaptcha";
 import { sendEmail } from "@/lib/email";
+import { renderEmailHtml, type EmailField } from "@/lib/emailTemplate";
+import { SITE_URL } from "@/lib/site";
 
 /**
  * Phase 2 (see PLAN.md): submissions are now persisted so they show up
@@ -46,6 +48,17 @@ export async function POST(request: Request) {
 
   const notifyEmail = process.env.VENDOR_NOTIFICATION_EMAIL ?? "vendors@1stcityllc.example";
 
+  const fields: EmailField[] = [
+    { label: "Company", value: submission.companyName },
+    { label: "Contact", value: submission.contactName },
+    { label: "Email", value: submission.email, href: `mailto:${submission.email}` },
+    ...(submission.phone ? [{ label: "Phone", value: submission.phone, href: `tel:${submission.phone}` }] : []),
+    { label: "Service type", value: submission.serviceType },
+  ];
+  if (submission.attachmentUrl && submission.attachmentName) {
+    fields.push({ label: "Attachment", value: submission.attachmentName, href: submission.attachmentUrl });
+  }
+
   await sendEmail({
     to: notifyEmail,
     subject: `New vendor proposal: ${submission.companyName}`,
@@ -60,6 +73,13 @@ export async function POST(request: Request) {
       "",
       "View and manage this submission in /admin.",
     ].join("\n"),
+    html: renderEmailHtml({
+      heading: `New vendor proposal — ${submission.companyName}`,
+      intro: "A vendor submitted a proposal through the website.",
+      fields,
+      message: { label: "Message", body: submission.message },
+      cta: { label: "View in admin", url: `${SITE_URL}/admin/vendor-submissions` },
+    }),
     skippedContext: "SENDGRID_API_KEY not set — no email sent; submission saved to /admin.",
   });
 

@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { Wordmark } from "@/components/Logo";
 import { AdminSignOutButton } from "@/components/AdminSignOutButton";
 import { AdminNav } from "@/components/AdminNav";
 import { requireSessionForPage } from "@/lib/permissions";
+import { prisma } from "@/lib/prisma";
 
 export default async function AdminProtectedLayout({
   children,
@@ -10,6 +12,15 @@ export default async function AdminProtectedLayout({
   children: React.ReactNode;
 }) {
   const { session, permissions } = await requireSessionForPage();
+
+  // An admin-set temporary password (see createStaffAccount) must be
+  // replaced before this account can do anything else — checked fresh
+  // against the DB rather than trusted from the session.
+  const { mustChangePassword } = await prisma.user.findUniqueOrThrow({
+    where: { id: session.user.id },
+    select: { mustChangePassword: true },
+  });
+  if (mustChangePassword) redirect("/admin/change-password");
 
   return (
     <>

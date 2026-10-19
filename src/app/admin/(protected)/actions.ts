@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { headers } from "next/headers";
 import { hashPassword } from "better-auth/crypto";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -440,6 +441,10 @@ export async function createStaffAccount(input: {
       email,
       emailVerified: true,
       roleId: input.roleId,
+      // The password just typed into this form is admin-chosen, not
+      // the new hire's own — force them to set a real one on first
+      // sign-in (src/app/admin/change-password/page.tsx).
+      mustChangePassword: true,
     },
   });
 
@@ -456,6 +461,23 @@ export async function createStaffAccount(input: {
   });
 
   revalidatePath("/admin/staff");
+}
+
+/**
+ * Clears the forced-password-change flag for the CALLER's own account,
+ * once they've actually set a new password (src/app/admin/change-password).
+ * Self-service — any signed-in user, not gated by a staff permission,
+ * since a brand-new account may not have been granted any yet.
+ */
+export async function clearMustChangePassword() {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session) {
+    throw new Error("Not signed in");
+  }
+  await prisma.user.update({
+    where: { id: session.user.id },
+    data: { mustChangePassword: false },
+  });
 }
 
 export async function updateStaffRole(userId: string, roleId: string | null) {

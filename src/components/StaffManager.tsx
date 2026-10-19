@@ -317,6 +317,10 @@ function NewStaffForm({ roleOptions }: { roleOptions: RoleOption[] }) {
             placeholder="At least 8 characters"
             className="w-full rounded border border-input-border px-3.5 py-2.5 text-sm"
           />
+          <span className="text-xs text-text-secondary">
+            They&apos;ll be required to set their own password the first time they sign
+            in with this one.
+          </span>
         </div>
         <div className="flex flex-col gap-1.5">
           <label htmlFor="new-staff-role" className="text-[11px] font-bold uppercase tracking-wide text-[#9e9e9e]">

@@ -8,19 +8,25 @@ datasource db {
 }
 
 model User {
-  id               String     @id
-  name             String
-  email            String
-  emailVerified    Boolean    @default(false)
-  image            String?
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  sessions         Session[]
-  accounts         Account[]
-  roleId           String?
-  role             Role?      @relation(fields: [roleId], references: [id])
-  twoFactorEnabled Boolean    @default(false)
-  twoFactor        TwoFactor?
+  id                 String     @id
+  name               String
+  email              String
+  emailVerified      Boolean    @default(false)
+  image              String?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  sessions           Session[]
+  accounts           Account[]
+  roleId             String?
+  role               Role?      @relation(fields: [roleId], references: [id])
+  twoFactorEnabled   Boolean    @default(false)
+  twoFactor          TwoFactor?
+  /// True when an admin set this account's current password directly
+  /// (new staff accounts — see createStaffAccount) rather than the
+  /// user choosing it themselves. Forces a password change on next
+  /// sign-in; cleared once they do. Never set retroactively on
+  /// existing accounts.
+  mustChangePassword Boolean    @default(false)
 
   @@unique([email])
   @@map("user")

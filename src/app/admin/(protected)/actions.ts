@@ -8,6 +8,9 @@ import { SITE_URL } from "@/lib/site";
 import { Prisma } from "@/generated/prisma/client";
 import type { SubmissionStatus, UnitAvailabilityStatus } from "@/generated/prisma/enums";
 import type { IncomeLimitRow } from "@/lib/types";
+import { getPropertyBySlug } from "@/data/properties";
+import { getPropertyContent, mergePropertyContent } from "@/lib/propertyContent";
+import { sendEmail } from "@/lib/email";
 import {
   ACTIONS,
   RESOURCES,
@@ -225,6 +228,7 @@ export async function archiveContactSubmission(id: string, archived: boolean) {
   });
 
   revalidatePath("/admin/contact-submissions");
+  revalidatePath("/admin/waitlist");
 }
 
 export async function deleteContactSubmission(id: string) {
@@ -236,6 +240,52 @@ export async function deleteContactSubmission(id: string) {
 
   await prisma.contactSubmission.delete({ where: { id } });
   revalidatePath("/admin/contact-submissions");
+}
+
+export async function emailWaitlistToManager(
+  propertySlug: string,
+): Promise<{ count: number; to: string }> {
+  await requirePermission("property_contact_submissions", "edit");
+
+  const property = getPropertyBySlug(propertySlug);
+  if (!property) throw new Error("Property not found.");
+
+  const [contentRow, signups] = await Promise.all([
+    getPropertyContent(propertySlug),
+    prisma.contactSubmission.findMany({
+      where: { propertySlug, isWaitlistSignup: true, archivedAt: null },
+      orderBy: { createdAt: "asc" },
+    }),
+  ]);
+  const to = mergePropertyContent(property, contentRow).contactEmail;
+  if (!to) {
+    throw new Error(
+      `No contact email set for ${property.name} yet — add one on its Properties admin page first.`,
+    );
+  }
+  if (signups.length === 0) {
+    throw new Error(`No active waitlist signups for ${property.name} right now.`);
+  }
+
+  const dateFormatter = new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+  const lines = signups.map(
+    (s, i) =>
+      `${i + 1}. ${s.name}\n   Email: ${s.email}\n   Phone: ${s.phone ?? "—"}\n   Unit type: ${s.unitType ?? "—"}\n   Signed up: ${dateFormatter.format(s.createdAt)}`,
+  );
+  const text = `${signups.length} waitlist signup${signups.length === 1 ? "" : "s"} for ${property.name}:\n\n${lines.join("\n\n")}`;
+
+  await sendEmail({
+    to,
+    subject: `${property.name} — waitlist signups (${signups.length})`,
+    text,
+    fromName: "1st City LLC Website",
+  });
+
+  return { count: signups.length, to };
 }
 
 type PermissionGrant = { resource: Resource; action: Action };

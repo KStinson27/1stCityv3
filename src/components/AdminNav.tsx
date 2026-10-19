@@ -18,6 +18,11 @@ const LINKS: { href: string; label: string; visible: (perms: Set<string>) => boo
       perms.has("property_contact_submissions:view"),
   },
   {
+    href: "/admin/waitlist",
+    label: "Waitlist",
+    visible: (perms) => perms.has("property_contact_submissions:view"),
+  },
+  {
     href: "/admin/properties",
     label: "Properties",
     visible: (perms) => perms.has("properties:view"),

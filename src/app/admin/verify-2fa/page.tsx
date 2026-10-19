@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { clearMustChangePassword } from "@/app/admin/(protected)/actions";
 import { Wordmark } from "@/components/Logo";
 
 export default function AdminVerifyTwoFactorPage() {
@@ -25,6 +26,12 @@ export default function AdminVerifyTwoFactorPage() {
     if (verifyError) {
       setError(verifyError.message ?? "Invalid code. Please try again.");
       return;
+    }
+    // Carried over from the login redirect — see src/app/admin/login.
+    // Completing the emailed reset-password flow (now confirmed by 2FA
+    // too) already proves a genuine new password was set.
+    if (new URLSearchParams(window.location.search).get("reset") === "success") {
+      await clearMustChangePassword();
     }
     router.push("/admin");
     router.refresh();

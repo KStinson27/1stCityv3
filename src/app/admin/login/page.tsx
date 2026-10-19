@@ -4,6 +4,7 @@ import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { clearMustChangePassword } from "@/app/admin/(protected)/actions";
 import { Wordmark } from "@/components/Logo";
 
 function ResetSuccessBanner() {
@@ -33,12 +34,23 @@ export default function AdminLoginPage() {
       setError(signInError.message ?? "Invalid email or password.");
       return;
     }
+    // Read directly rather than via useSearchParams() — this runs from
+    // an event handler, not during render, so it doesn't need the
+    // Suspense boundary that hook would require on this static page.
+    const afterReset = new URLSearchParams(window.location.search).get("reset") === "success";
+
     // The two-factor plugin's post-sign-in hook adds `twoFactorRedirect`
     // to the response at runtime, but doesn't flow into signIn.email's
     // declared return type — narrow with an `in` check instead of `any`.
     if (data && "twoFactorRedirect" in data && data.twoFactorRedirect) {
-      router.push("/admin/verify-2fa");
+      router.push(afterReset ? "/admin/verify-2fa?reset=success" : "/admin/verify-2fa");
       return;
+    }
+    // Completing the emailed reset-password flow already proves they've
+    // set a genuine new password — clear the forced-change flag so they
+    // aren't immediately bounced to /admin/change-password right after.
+    if (afterReset) {
+      await clearMustChangePassword();
     }
     router.push("/admin");
     router.refresh();

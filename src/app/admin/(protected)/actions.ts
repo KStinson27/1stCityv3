@@ -507,6 +507,14 @@ export async function sendStaffPasswordReset(userId: string) {
     select: { email: true },
   });
 
+  // Belt-and-suspenders alongside the emailed link: their existing
+  // password stays valid (requestPasswordReset doesn't touch it) until
+  // they act on the email, which they might never open. Flagging the
+  // account here blocks it everywhere else in the meantime — cleared
+  // once they actually set a new password, by either path (the
+  // reset-password login flow below, or /admin/change-password).
+  await prisma.user.update({ where: { id: userId }, data: { mustChangePassword: true } });
+
   await auth.api.requestPasswordReset({
     body: {
       email: user.email,

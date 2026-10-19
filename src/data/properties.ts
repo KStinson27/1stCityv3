@@ -105,8 +105,8 @@ export const properties: Property[] = [
     units: [
       { type: "1 Bedroom Apartment", bedBath: "1 Bath", rent: null, availability: null },
       { type: "2 Bedroom Apartment", bedBath: "1 Bath", rent: null, availability: null },
-      { type: "2 Bedroom Townhome", bedBath: null, rent: null, availability: null },
-      { type: "3 Bedroom Townhome", bedBath: null, rent: null, availability: null },
+      { type: "2 Bedroom Townhome", bedBath: "1.5 Bath", rent: null, availability: null },
+      { type: "3 Bedroom Townhome", bedBath: "1.5 Bath", rent: null, availability: null },
     ],
     incomeLimits: null,
     requiredDocuments: [],
